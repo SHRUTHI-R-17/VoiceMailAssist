@@ -15,22 +15,7 @@ const nodemailer = require('nodemailer');
 const Imap       = require('node-imap');
 const { simpleParser } = require('mailparser');
 const { google }  = require('googleapis');
-const config = {
-  GOOGLE_CLIENT_ID:     process.env.GOOGLE_CLIENT_ID     || '',
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
-  GOOGLE_REDIRECT_URI:  process.env.GOOGLE_REDIRECT_URI  || 'http://localhost:3000/auth/google/callback',
-  GOOGLE_SCOPES: [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.send',
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile'
-  ],
-  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
-  TELEGRAM_CHAT_ID:   process.env.TELEGRAM_CHAT_ID   || '',
-  ANTHROPIC_API_KEY:  process.env.ANTHROPIC_API_KEY  || '',
-  SESSION_SECRET:     process.env.SESSION_SECRET      || 'vma-secret-2026',
-  PORT:               process.env.PORT                || 3000
-};
+const config      = require('./config');
 
 // ── LOAD BALANCING via cluster ──
 if (cluster.isMaster) {
