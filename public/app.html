@@ -412,7 +412,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
       <div class="home-btns">
         <button class="hbtn hbtn-admin" onclick="goTo('adminLogin')">
           <span class="hbtn-ico">🛡️</span>
-          <span class="hbtn-txt"><div class="hbtn-lbl">Admin Login</div><div class="hbtn-sub">shruthir0413@gmail.com only</div></span>
+          <span class="hbtn-txt"><div class="hbtn-lbl">Admin Login</div><div class="hbtn-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ef9c879d9a9b87869ddfdbdedcaf88828e8683c18c8082">[email&#160;protected]</a> only</div></span>
           <span class="hbtn-arr">→</span>
         </button>
         <button class="hbtn hbtn-user" onclick="goTo('userLogin')">
@@ -585,7 +585,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="tb-right">
       <div class="lang-pill" onclick="goTo('lang')" id="langPillE">🌐 EN</div>
       <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-      <div class="user-pill" id="emailUserPill">user@gmail.com</div>
+      <div class="user-pill" id="emailUserPill"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ccb9bfa9be8caba1ada5a0e2afa3a1">[email&#160;protected]</a></div>
       <button class="out-btn" onclick="signOut()">Sign Out</button>
     </div>
   </div>
@@ -642,7 +642,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="tb-right">
       <div class="lang-pill" onclick="goTo('lang')" id="langPillT">🌐 EN</div>
       <button class="theme-btn" onclick="toggleTheme()">🌙</button>
-      <div class="user-pill" id="tgUserPill">user@gmail.com</div>
+      <div class="user-pill" id="tgUserPill"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="502523352210373d31393c7e333f3d">[email&#160;protected]</a></div>
       <button class="out-btn" onclick="signOut()">Sign Out</button>
     </div>
   </div>
@@ -786,7 +786,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
 <div class="toast" id="toast"></div>
 <div class="loader" id="loader"><div class="spin"></div><p id="loaderTxt">Loading…</p></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ════════════════════════════════════════
 //  LANGUAGE STRINGS
 // ════════════════════════════════════════
@@ -1985,22 +1985,4 @@ function init(){
         goTo('lang');
         speak(L.loginOk(d.user.name||d.user.email.split('@')[0]));
       }else goTo('home');
-    }).catch(()=>goTo('home'));
-  }else{
-    // Normal home page
-    currentPage='home';
-    // Try speechSynthesis voices
-    const voices=speechSynthesis.getVoices();
-    if(voices&&voices.length>0){
-      // Voices ready — but wait for user click (Chrome autoplay policy)
-    }else{
-      speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;};
-    }
-  }
-}
-
-window.onload=init;
-setInterval(()=>{if(currentPage==='admin')renderAdmin();},8000);
-</script>
-</body>
-</html>
+    }).catch(()=>goTo('home'
