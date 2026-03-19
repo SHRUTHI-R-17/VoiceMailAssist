@@ -4,3 +4,4 @@ activity_log.json
 users.json
 .env
 config.js
+backups/
