@@ -3,8 +3,6 @@
 //  Features: OAuth users, IMAP admin, session timeout 60min,
 //  load balancing, auto backup, PDF export, analytics
 // ============================================================
-const cluster    = require('cluster');
-const os         = require('os');
 const express    = require('express');
 const session    = require('express-session');
 const cors       = require('cors');
@@ -32,17 +30,6 @@ const config = {
   PORT:               process.env.PORT                || 3000
 };
 
-// ── LOAD BALANCING via cluster ──
-if (cluster.isMaster) {
-  const cpus = Math.min(os.cpus().length, 2); // max 2 workers
-  console.log(`\n🔄 Load Balancing: Starting ${cpus} workers`);
-  for (let i = 0; i < cpus; i++) cluster.fork();
-  cluster.on('exit', (worker) => {
-    console.log(`⚠️  Worker ${worker.id} died — restarting`);
-    cluster.fork();
-  });
-  return;
-}
 
 const app = express();
 app.use(express.json());
@@ -575,7 +562,7 @@ app.get('/api/admin/status', (_, res) => res.json({
   server: 'online', gmail: true,
   telegram: !!(config.TELEGRAM_BOT_TOKEN && !config.TELEGRAM_BOT_TOKEN.startsWith('PASTE')),
   uptime: process.uptime(), nodeVersion: process.version, timestamp: new Date().toISOString(),
-  worker: cluster.worker?.id || 1
+  worker: 1
 }));
 
 // ══════════════════════════════════════════
@@ -584,7 +571,7 @@ app.get('/api/admin/status', (_, res) => res.json({
 const PORT = config.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n══════════════════════════════════════════════════════`);
-  console.log(`  ✅  VoiceMailAssist v4 — Worker ${cluster.worker?.id || 1}`);
+  console.log(`  ✅  VoiceMailAssist v4 — Running`);
   console.log(`  🌐  http://localhost:${PORT}/app.html`);
   console.log(`  🔐  Admin: ${ADMIN_EMAIL} + App Password`);
   console.log(`  👤  Users: Google OAuth`);
