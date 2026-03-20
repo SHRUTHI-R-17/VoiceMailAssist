@@ -1979,4 +1979,24 @@ function init(){
       if(d.loggedIn&&d.user){
         currentUser=d.user;userRole=d.role||'user';
         voiceStarted=true;
-        document
+        document.getElementById('startVoiceBtn').style.display='none';
+        // Load user's PIN
+        fetch('/api/user/pin').then(r=>r.json()).then(pd=>{if(pd.pin)userPIN=String(pd.pin).trim();}).catch(()=>{});
+        goTo('lang');
+        speak(L.loginOk(d.user.name||d.user.email.split('@')[0]));
+      }else goTo('home');
+    }).catch(()=>goTo('home'));
+  }else{
+    currentPage='home';
+    const voices=speechSynthesis.getVoices();
+    if(!voices||!voices.length){
+      speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;};
+    }
+  }
+}
+
+window.onload=init;
+setInterval(()=>{if(currentPage==='admin')renderAdmin();},8000);
+</script>
+</body>
+</html>
