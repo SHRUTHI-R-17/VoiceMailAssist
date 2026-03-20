@@ -585,7 +585,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="tb-right">
       <div class="lang-pill" onclick="goTo('lang')" id="langPillE">🌐 EN</div>
       <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-      <div class="user-pill" id="emailUserPill">user@gmail.com</div>
+      <div class="user-pill" id="emailUserPill">Loading...</div>
       <button class="out-btn" onclick="signOut()">Sign Out</button>
     </div>
   </div>
@@ -642,7 +642,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="tb-right">
       <div class="lang-pill" onclick="goTo('lang')" id="langPillT">🌐 EN</div>
       <button class="theme-btn" onclick="toggleTheme()">🌙</button>
-      <div class="user-pill" id="tgUserPill">user@gmail.com</div>
+      <div class="user-pill" id="tgUserPill">Loading...</div>
       <button class="out-btn" onclick="signOut()">Sign Out</button>
     </div>
   </div>
@@ -1979,10 +1979,4 @@ function init(){
       if(d.loggedIn&&d.user){
         currentUser=d.user;userRole=d.role||'user';
         voiceStarted=true;
-        document.getElementById('startVoiceBtn').style.display='none';
-        // Load user's PIN
-        fetch('/api/user/pin').then(r=>r.json()).then(pd=>{if(pd.pin)userPIN=String(pd.pin).trim();}).catch(()=>{});
-        goTo('lang');
-        speak(L.loginOk(d.user.name||d.user.email.split('@')[0]));
-      }else goTo('home');
-    }).catch(()=>goTo('home'
+        document
