@@ -103,6 +103,22 @@ app.post('/api/admin/log', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── SMTP TRANSPORTER CACHE ──
+const transporterCache = {};
+function getTransporter(user, pass) {
+  if (!transporterCache[user]) {
+    transporterCache[user] = nodemailer.createTransport({
+      host: 'smtp.gmail.com', port: 587, secure: false,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+      pool: true, // reuse connections
+      maxConnections: 3,
+      socketTimeout: 10000
+    });
+  }
+  return transporterCache[user];
+}
+
 // ══════════════════════════════════════════
 //  GOOGLE OAUTH — for regular users
 // ══════════════════════════════════════════
@@ -328,14 +344,14 @@ app.get('/api/gmail/emails', async (req, res) => {
           read: !(msg.data.labelIds || []).includes('UNREAD')
         };
       }));
-      addLog(req.session.googleUser?.email, `Fetched ${emails.length} emails (${tab})`);
+      addLog(req.session.googleUser?.email, `Fetched emails`);
       return res.json({ emails });
     } else {
       // IMAP path for admin
       const emails = await fetchIMAP(client.user, client.pass, tab, limit);
       // Add summaries
       const withSummary = await Promise.all(emails.map(async e => ({ ...e, summary: await summarizeEmail(e.body, e.subject, e.from) })));
-      addLog(client.user, `Fetched ${withSummary.length} emails (${tab})`);
+      addLog(client.user, 'Fetched emails');
       return res.json({ emails: withSummary });
     }
   } catch (err) {
@@ -426,13 +442,13 @@ app.post('/api/gmail/send', async (req, res) => {
       const raw = Buffer.from([`From:${email}`, `To:${to}`, `Subject:${subject}`, 'MIME-Version:1.0', 'Content-Type:text/plain;charset=utf-8', '', body].join('\r\n')).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
       await client.gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
     } else {
-      const t = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 587, secure: false, auth: { user: req.session.gmailUser, pass: req.session.gmailPassword }, tls: { rejectUnauthorized: false } });
+      const t = getTransporter(req.session.gmailUser, req.session.gmailPassword);
       await t.sendMail({ from: email, to, subject, text: body });
     }
     // Update user email count
     const u = users.find(u => u.email === email);
     if (u) { u.emailsSent = (u.emailsSent || 0) + 1; saveUsers(); }
-    addLog(email, `✅ Sent email to: ${to} — ${subject}`);
+    addLog(email, '✅ Email sent');
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -462,7 +478,7 @@ app.post('/api/telegram/send', async (req, res) => {
   try {
     await axios.post(`${tgBase()}/sendMessage`, { chat_id: chatId || config.TELEGRAM_CHAT_ID, text: message });
     const email = req.session.googleUser?.email || req.session.gmailUser;
-    addLog(email || 'user', `✅ Sent Telegram to: ${chatId}`);
+    addLog(email || 'user', '✅ Telegram message sent');
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

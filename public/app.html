@@ -1025,12 +1025,12 @@ function speak(text,onDone){
     .replace(/:\s+/g,': ')    // pause after colons
     .replace(/;\s+/g,'; ');   // pause after semicolons
   const u=new SpeechSynthesisUtterance(naturalText);
-  u.lang=L.code;u.rate=0.95;u.pitch=1.0;u.volume=1.0; // slightly slower for natural feel
+  u.lang=L.code;u.rate=1.0;u.pitch=1.0;u.volume=1.0;
   const voices=speechSynthesis.getVoices();
   const v=voices.find(v=>v.lang===L.code)||voices.find(v=>v.lang.startsWith(lang))||voices.find(v=>v.lang==='en-US')||voices[0];
   if(v)u.voice=v;
-  u.onend=()=>{isSpeaking=false;if(onDone){onDone();return;}if(micEnabled){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,300);}};
-  u.onerror=()=>{isSpeaking=false;if(onDone){onDone();return;}if(micEnabled)setTimeout(startListening,300);};
+  u.onend=()=>{isSpeaking=false;if(onDone){onDone();return;}if(micEnabled){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,50);}};
+  u.onerror=()=>{isSpeaking=false;if(onDone){onDone();return;}if(micEnabled)setTimeout(startListening,50);};
   speechSynthesis.speak(u);
 }
 
@@ -1063,30 +1063,52 @@ function startListening(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){setMicUI('off');return;}
   try{
-    recognition=new SR();recognition.lang=L.code;recognition.continuous=false;recognition.interimResults=true;
+    if(recognition){try{recognition.stop();}catch{}}
+    recognition=new SR();
+    recognition.lang=L.code;
+    recognition.continuous=true;  // STABLE - never auto-stops
+    recognition.interimResults=true;
+    recognition.maxAlternatives=3; // better recognition accuracy
     recognition.onstart=()=>{isListening=true;setMicUI('listening');};
     recognition.onresult=(e)=>{
       let interim='',final='';
-      for(let r of e.results){if(r.isFinal)final+=r[0].transcript;else interim+=r[0].transcript;}
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal)final+=e.results[i][0].transcript;
+        else interim+=e.results[i][0].transcript;
+      }
       if(final||interim)setSaid(final||interim);
       if(final){
         setMicUI('processing');
         const isRaw=authStep==='admin_email'||authStep==='admin_pw'||authStep==='admin_email_confirm'||authStep==='admin_pw_confirm'||authStep==='ps_pin1'||authStep==='ps_pin1_confirm';
         const cmd=isRaw?final.trim().toLowerCase():final.trim().toLowerCase().replace(/\bat\b/g,'@').replace(/\bdot com\b/g,'.com').replace(/\bdot in\b/g,'.in').replace(/\bdot\b/g,'.');
-        processCommand(cmd);
+        processCommand(cmd.trim());
+        // keep mic running - do not stop
+        if(!isSpeaking)setMicUI('listening');
       }
     };
     recognition.onerror=(ev)=>{
       isListening=false;
       if(ev.error==='not-allowed'){setMicUI('off');micEnabled=false;speak('Microphone blocked. Please allow access.');return;}
-      if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,800);}
+      if(ev.error==='no-speech'||ev.error==='audio-capture'){
+        // just restart silently - no flicker
+        if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,200);}
+        return;
+      }
+      if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,300);}
     };
-    recognition.onend=()=>{isListening=false;if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,400);}};
+    recognition.onend=()=>{
+      isListening=false;
+      // Always restart immediately - no delay - no flicker
+      if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,150);}
+    };
     recognition.start();
-  }catch{if(micEnabled)setTimeout(startListening,1000);}
+  }catch(e){
+    isListening=false;
+    if(micEnabled&&!isSpeaking)setTimeout(startListening,800);
+  }
 }
-function stopMic(){micEnabled=false;isListening=false;clearTimeout(restartTimer);if(recognition)try{recognition.stop();}catch{}setMicUI('off');}
-function resumeMic(){micEnabled=true;if(!isSpeaking)startListening();}
+function stopMic(){micEnabled=false;isListening=false;clearTimeout(restartTimer);if(recognition)try{recognition.abort();}catch{}setMicUI('off');}
+function resumeMic(){micEnabled=true;clearTimeout(restartTimer);if(!isSpeaking)setTimeout(startListening,100);}
 
 // ════════════════════════════════════════
 //  APPLY LANGUAGE
@@ -1307,16 +1329,31 @@ async function openEmail(idx){
   aiReplies=await getAI(e.body||'',fn,e.subject);
   hideLoader();
   pendingReply={to:e.from,subject:e.subject,threadId:e.id};
-  const summary=e.summary||e.snippet||(e.body||'').slice(0,200);
+  // Clean body - remove HTML tags, extract plain text only
+  const cleanBody=(e.body||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
+  const summary=e.summary||e.snippet||cleanBody.slice(0,200);
   document.getElementById('emailDetail').innerHTML=`
     <div class="ehdr"><div class="esubj-big">${e.subject}</div><div class="efrom-row">From: <b>${fn}</b> · ${e.date||''}</div></div>
     <div class="esummary">📝 ${summary}</div>
     <div class="ebody">${e.body||e.snippet||''}</div>
     <div class="ai-box"><div class="ai-title">AI Replies</div>
     ${aiReplies.map((r,i)=>`<div class="air" id="air${i}" onclick="selectReply(${i})"><span class="air-num">${i+1}.</span>${r}</div>`).join('')}</div>`;
-  log('Read: '+e.subject);
-  // Read summary aloud with natural pauses — not full body
-  speak(L.openEmail(idx+1,fn,e.subject,summary,aiReplies[0],aiReplies[1],aiReplies[2]));
+  log('Email opened');
+  // Read ONLY sender name, subject and clean 2-line summary - no HTML, no full body
+  const cleanSum = (e.summary||e.snippet||e.body||'')
+    .replace(/<[^>]*>/g,'')
+    .replace(/&[a-z]+;/g,' ')
+    .replace(/https?:\/\/\S+/g,'')
+    .replace(/[\r\n]+/g,' ')
+    .replace(/\s+/g,' ')
+    .trim()
+    .slice(0,180);
+  const spk = lang==='en'
+    ? `Email ${idx+1}. From ${fn}. Subject: ${e.subject}. Summary: ${cleanSum}. Say reply one, two, or three.`
+    : lang==='ta'
+    ? `${idx+1}வது மின்னஞ்சல். ${fn} அனுப்பியது. தலைப்பு: ${e.subject}. சுருக்கம்: ${cleanSum}. பதில் ஒன்று, இரண்டு அல்லது மூன்று சொல்லுங்கள்.`
+    : `ईमेल ${idx+1}। ${fn} से। विषय: ${e.subject}। सारांश: ${cleanSum}। जवाब एक, दो या तीन कहें।`;
+  speak(spk);
 }
 
 async function getAI(body,sender,subject){
@@ -1509,25 +1546,25 @@ async function requirePIN(callback){
 }
 
 function listenForPIN(){
-  if(pinListening)return;pinListening=true;
+  if(pinListening)return;
+  pinListening=true;
   document.getElementById('pinVoiceIco').textContent='🔴';
-  document.getElementById('pinVoiceStatus').textContent=lang==='en'?'🔴 Listening…':lang==='ta'?'🔴 கேட்கிறோம்…':'🔴 सुन रहे हैं…';
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){pinListening=false;return;}
-  const r=new SR();r.lang=L.code;r.continuous=false;r.interimResults=false;
-  r.onresult=(e)=>{
-    pinListening=false;
-    document.getElementById('pinVoiceIco').textContent='🎙️';
-    const said=e.results[0][0].transcript.toLowerCase().trim();
-    document.getElementById('pinVoiceStatus').textContent=`"${said}"`;
-    const digits=extractDigits(said);
-    if(digits.length===4){pinEntry=digits;updatePDs();setTimeout(verifyPIN,400);}
-    else speak(lang==='en'?'Could not hear PIN. Say again.':lang==='ta'?'பின் கேட்கவில்லை. மீண்டும் சொல்லுங்கள்.':'पिन सुनाई नहीं दिया।',()=>listenForPIN());
-  };
-  r.onerror=()=>{pinListening=false;document.getElementById('pinVoiceIco').textContent='🎙️';setTimeout(()=>listenForPIN(),1000);};
-  r.onend=()=>{if(pinListening)pinListening=false;};
-  r.start();
+  document.getElementById('pinVoiceStatus').textContent=lang==='en'?'🔴 Listening for PIN…':lang==='ta'?'🔴 பின் கேட்கிறோம்…':'🔴 पिन सुन रहे हैं…';
+  // Use main recognition - already running - just flag we want PIN next result
+  pinAwaitingInput=true;
+  // Ensure mic is running
+  if(!isListening&&!isSpeaking)startListening();
+  // Fallback timeout - if no input in 8 seconds retry
+  clearTimeout(pinRetryTimer);
+  pinRetryTimer=setTimeout(()=>{
+    if(pinAwaitingInput&&document.getElementById('pinModal').classList.contains('show')){
+      pinListening=false;
+      listenForPIN();
+    }
+  },8000);
 }
+let pinAwaitingInput=false;
+let pinRetryTimer=null;
 
 function extractDigits(said){
   const wm={zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',சுழியம்:'0',ஒன்று:'1',இரண்டு:'2',மூன்று:'3',நான்கு:'4',ஐந்து:'5',ஆறு:'6',ஏழு:'7',எட்டு:'8',ஒன்பது:'9',शून्य:'0',एक:'1',दो:'2',तीन:'3',चार:'4',पाँच:'5',छह:'6',सात:'7',आठ:'8',नौ:'9'};
@@ -1713,6 +1750,19 @@ function signOut(){
 //  COMMAND PROCESSOR
 // ════════════════════════════════════════
 function processCommand(cmd){
+  // ── PIN INTERCEPT - highest priority ──
+  if(pinAwaitingInput&&document.getElementById('pinModal').classList.contains('show')){
+    clearTimeout(pinRetryTimer);
+    pinAwaitingInput=false;pinListening=false;
+    document.getElementById('pinVoiceIco').textContent='🎙️';
+    document.getElementById('pinVoiceStatus').textContent=`"${cmd}"`;
+    const digits=extractDigits(cmd);
+    if(digits.length===4){pinEntry=digits;updatePDs();setTimeout(verifyPIN,400);}
+    else{
+      speak(lang==='en'?'Could not hear 4 digits. Say your PIN again.':lang==='ta'?'4 இலக்கங்கள் கேட்கவில்லை. மீண்டும் சொல்லுங்கள்.':'4 अंक नहीं सुने। फिर बोलें।',()=>listenForPIN());
+    }
+    return;
+  }
   // ── PRIORITY 1: Cancel/reset commands ──
   if(cmd.includes('cancel')||cmd.includes('ரத்து')||cmd.includes('रद्द')){
     if(document.getElementById('composeModal').classList.contains('show')){closeCompose();speak(L.cancelled);return;}
@@ -1852,28 +1902,31 @@ function cmdLang(cmd){
   else speak(lang==='en'?'Say English, Tamil, or Hindi.':lang==='ta'?'இங்கிலீஷ், தமிழ் அல்லது ஹிந்தி.':'English, Tamil, या Hindi कहें।');
 }
 
+function matchesNum(cmd,words){return words.some(w=>cmd.includes(w));}
 function cmdEmail(cmd){
-  if(cmd.includes('read email')||cmd.includes('மின்னஞ்சல் படி')||cmd.includes('ईमेल पढ़ो')){awaitSection=true;speak(L.chooseSection);return;}
+  if(cmd.includes('read email')||cmd.includes('read mail')||cmd.includes('check email')||cmd.includes('மின்னஞ்சல் படி')||cmd.includes('ईमेल पढ़ो')){awaitSection=true;speak(L.chooseSection);return;}
   if(awaitSection){
     let tab=null;
-    if(cmd.includes('inbox')||cmd.includes('இன்பாக்ஸ்')||cmd.includes('इनबॉक्स'))tab='inbox';
+    if(cmd.includes('inbox')||cmd.includes('இன்பாக்ஸ்')||cmd.includes('इनबॉक्स')||cmd.includes('primary'))tab='inbox';
     else if(cmd.includes('social')||cmd.includes('சோஷியல்')||cmd.includes('सोशल'))tab='social';
-    else if(cmd.includes('promo')||cmd.includes('offer')||cmd.includes('ஆஃபர்')||cmd.includes('ऑफर'))tab='promotions';
+    else if(cmd.includes('promo')||cmd.includes('offer')||cmd.includes('promotion')||cmd.includes('ஆஃபர்')||cmd.includes('ऑफर'))tab='promotions';
     if(tab){awaitSection=false;emailTab=tab;switchEmailTab(tab);loadEmailsAndRead();}
     else speak(L.chooseSection);return;
   }
-  if(cmd.includes('send email')||cmd.includes('மின்னஞ்சல் அனுப்பு')||cmd.includes('ईमेल भेजो'))openCompose();
-  else if(cmd.includes('count email')||cmd.includes('மின்னஞ்சல் எண்ணு')||cmd.includes('ईमेल गिनो'))countEmailsVoice();
-  else if(cmd.includes('stop')||cmd.includes('நிறுத்து')||cmd.includes('रुको')){window.speechSynthesis.cancel();setTimeout(startListening,300);}
-  else if(cmd.includes('refresh'))loadEmails();
-  else if(cmd.match(/reply\s*(one|1|ஒன்று|एक)/))   {if(aiReplies[0])selectReply(0);}
-  else if(cmd.match(/reply\s*(two|2|இரண்டு|दो)/))  {if(aiReplies[1])selectReply(1);}
-  else if(cmd.match(/reply\s*(three|3|மூன்று|तीन)/)){if(aiReplies[2])selectReply(2);}
-  else if(cmd.match(/open\s*(one|1)/))   openEmail(0);
-  else if(cmd.match(/open\s*(two|2)/))   openEmail(1);
-  else if(cmd.match(/open\s*(three|3)/)) openEmail(2);
-  else if(cmd.match(/open\s*(four|4)/))  openEmail(3);
-  else if(cmd.match(/open\s*(five|5)/))  openEmail(4);
+  if(cmd.includes('send email')||cmd.includes('compose')||cmd.includes('new email')||cmd.includes('மின்னஞ்சல் அனுப்பு')||cmd.includes('ईमेल भेजो'))openCompose();
+  else if(cmd.includes('count')||cmd.includes('how many')||cmd.includes('மின்னஞ்சல் எண்ணு')||cmd.includes('ईमेल गिनो'))countEmailsVoice();
+  else if(cmd.includes('stop')||cmd.includes('quiet')||cmd.includes('நிறுத்து')||cmd.includes('रुको')){window.speechSynthesis.cancel();setMicUI('listening');}
+  else if(cmd.includes('refresh')||cmd.includes('reload'))loadEmails();
+  // Reply commands - enhanced matching
+  else if(matchesNum(cmd,['reply one','reply 1','reply first','first reply','one reply','ஒன்று பதில்','एक जवाब']))   {if(aiReplies[0])selectReply(0);}
+  else if(matchesNum(cmd,['reply two','reply 2','reply second','second reply','two reply','இரண்டு பதில்','दो जवाब']))  {if(aiReplies[1])selectReply(1);}
+  else if(matchesNum(cmd,['reply three','reply 3','reply third','third reply','three reply','மூன்று பதில்','तीन जवाब'])){if(aiReplies[2])selectReply(2);}
+  // Open commands - enhanced matching for small commands
+  else if(matchesNum(cmd,['open one','open 1','first','number one','email one','one','1st','first email']))   {if(emails[0])openEmail(0);}
+  else if(matchesNum(cmd,['open two','open 2','second','number two','email two','two','2nd','second email']))  {if(emails[1])openEmail(1);}
+  else if(matchesNum(cmd,['open three','open 3','third','number three','email three','three','3rd','third email'])){if(emails[2])openEmail(2);}
+  else if(matchesNum(cmd,['open four','open 4','fourth','number four','email four','four','4th','fourth email'])) {if(emails[3])openEmail(3);}
+  else if(matchesNum(cmd,['open five','open 5','fifth','number five','email five','five','5th','fifth email']))  {if(emails[4])openEmail(4);}
   else speak(lang==='en'?'Say read emails, send email, count, or open one to five.':lang==='ta'?'மின்னஞ்சல் படி, அனுப்பு, எண்ணு என்று சொல்லுங்கள்.':'ईमेल पढ़ो, भेजो, या गिनो कहें।');
 }
 
