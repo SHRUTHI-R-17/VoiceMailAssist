@@ -329,6 +329,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
 .conf-ico{font-size:36px;}
 .conf-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--yellow);}
 .conf-msg{font-size:11px;color:var(--text);background:var(--panel);border-radius:8px;padding:9px 12px;width:100%;text-align:left;line-height:1.6;}
+.conf-sub{font-size:10px;color:var(--muted);}
 .conf-listen{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--cyan);}
 .conf-ldot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink .8s infinite;}
 .conf-btns{display:flex;gap:8px;width:100%;}
@@ -372,7 +373,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
 <body>
 <div class="mesh"></div>
 <div class="mic-bar" id="micBar"></div>
-<div class="mic-ind" id="micInd"><div class="mpulse" id="micPulse"></div><span id="micIndTxt">Starting…</span></div>
+<div class="mic-ind" id="micInd"><div class="mpulse" id="micPulse"></div><span id="micIndTxt">Click Start to begin…</span></div>
 
 <!-- SESSION EXPIRED -->
 <div class="session-overlay" id="sessionOverlay">
@@ -404,9 +405,9 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     </div>
     <div class="home-right">
       <div class="vbox">
-        <div class="vbox-title"><div class="vdot" id="homeDot"></div>🎙️ Voice — Always Listening</div>
+        <div class="vbox-title"><div class="vdot" id="homeDot"></div>🎙️ Voice Assistant</div>
         <div class="v-said" id="homeSaid">Waiting…</div>
-        <div class="v-resp" id="homeResp">Click to start voice assistant…</div>
+        <div class="v-resp" id="homeResp">Click the button below to start the voice assistant.</div>
       </div>
       <button class="start-btn" id="startVoiceBtn" onclick="userStarted()">🎙️ Click to Start Voice Assistant</button>
       <div class="home-btns">
@@ -520,13 +521,13 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   </div>
 </div>
 
-<!-- ════ PAGE 5: PIN SETUP (after signup OAuth) ════ -->
+<!-- ════ PAGE 5: PIN SETUP ════ -->
 <div class="page" id="pagePinSetup">
   <div class="auth-wrap">
     <div class="auth-left">
       <div class="brand-row"><div class="brand-icon" style="background:linear-gradient(135deg,var(--purple),var(--cyan))">🔐</div><div><div class="brand-name">Security PIN</div><div class="brand-sub">Your personal PIN</div></div></div>
       <h1>🔐 Set Your<br>PIN</h1>
-      <p>Your PIN is personal and unique to your account. Same PIN can be set by others — it is tied to your email. You will use it to confirm sending emails and messages.</p>
+      <p>Your PIN is personal and unique to your account. You will use it to confirm sending emails and messages.</p>
     </div>
     <div class="auth-right">
       <div class="vbox" style="max-width:400px;width:100%">
@@ -592,7 +593,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   <div class="dash">
     <div class="sidebar">
       <div class="sb-top">
-        <div class="sb-vtitle"><div class="sb-vdot" id="emailDot"></div>🎙️ Always On</div>
+        <div class="sb-vtitle"><div class="sb-vdot" id="emailDot"></div>🎙️ Voice</div>
         <div class="sb-said" id="emailSaid">Listening…</div>
         <div class="sb-resp" id="emailResp">Say any command…</div>
       </div>
@@ -649,7 +650,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   <div class="dash">
     <div class="sidebar">
       <div class="sb-top">
-        <div class="sb-vtitle"><div class="sb-vdot" id="tgDot"></div>🎙️ Always On</div>
+        <div class="sb-vtitle"><div class="sb-vdot" id="tgDot"></div>🎙️ Voice</div>
         <div class="sb-said" id="tgSaid">Listening…</div>
         <div class="sb-resp" id="tgResp">Say any command…</div>
       </div>
@@ -687,7 +688,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   <div class="dash">
     <div class="sidebar" style="width:220px;flex-shrink:0;">
       <div class="sb-top">
-        <div class="sb-vtitle"><div class="sb-vdot" id="adminDot"></div>🎙️ Always On</div>
+        <div class="sb-vtitle"><div class="sb-vdot" id="adminDot"></div>🎙️ Voice</div>
         <div class="sb-said" id="adminSaid">Listening…</div>
         <div class="sb-resp" id="adminResp">Say any command…</div>
       </div>
@@ -776,7 +777,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="pin-attempts" id="pinAttempts"></div>
     <div class="pin-voice-area">
       <div class="pin-voice-ico" id="pinVoiceIco">🎙️</div>
-      <div class="pin-voice-status" id="pinVoiceStatus">Listening for your PIN…</div>
+      <div class="pin-voice-status" id="pinVoiceStatus">Waiting…</div>
       <div class="pin-voice-hint" id="pinVoiceHint">Say your four digits clearly one by one</div>
     </div>
     <div class="pin-cancel" onclick="cancelPin()" id="pinCancelTxt">Cancel — Don't Send</div>
@@ -797,7 +798,7 @@ const STRINGS={
     emailSet:e=>`Email set to ${e}. Say yes correct to confirm or no wrong to say again.`,
     emailConfirm:e=>`I heard ${e}. Say yes correct to confirm or no wrong to say again.`,
     sayPw:'Say your App Password now.',
-    pwSet:p=>`I heard your password. Say yes correct to confirm or no wrong to say again.`,
+    pwSet:p=>`Password captured. Say yes correct to confirm or no wrong to say again.`,
     sayPin:'Say your 4-digit PIN now.',
     pinSet:p=>`I heard ${p.split('').join(' ')}. Say yes correct or no wrong.`,
     loginOk:n=>`Login successful. Welcome ${n}.`,
@@ -805,18 +806,18 @@ const STRINGS={
     sessionExpired:'Your session has expired. Please login again.',
     langSelect:'Language changed to English.',
     chooseSection:'Which section? Say inbox, social, or promotions.',
-    emailsRead:(tab,u,n,list)=>`${tab} loaded. ${u} unread. ${n} emails: ${list} Say open one to five.`,
-    openEmail:(n,from,sub,summary,r1,r2,r3)=>`Email ${n} from ${from}. Subject: ${sub}. Summary: ${summary}. Three AI replies: One: ${r1}. Two: ${r2}. Three: ${r3}. Say reply one, two, or three.`,
+    emailsRead:(tab,u,n,list)=>`${tab} loaded. ${u} unread, ${n} total. ${list} Say open one to five.`,
+    openEmail:(n,from,sub,summary,r1,r2,r3)=>`Email ${n} from ${from}. Subject: ${sub}. Summary: ${summary}. Three AI replies. One: ${r1}. Two: ${r2}. Three: ${r3}. Say reply one, two, or three.`,
     confirmSend:'Do you want to send this? Say yes correct or no wrong.',
     enterPIN:'Say your 4-digit PIN to confirm sending.',
     pinOk:'PIN verified. Sending now.',
     pinWrong:n=>`Wrong PIN. ${n} attempt${n>1?'s':''} remaining.`,
-    pinBlocked:'3 wrong attempts. Message blocked.',
+    pinBlocked:'Three wrong attempts. Message blocked.',
     sent:to=>`Message sent to ${to} successfully.`,
     cancelled:'Message cancelled.',
     countEmails:(u,r,t)=>`You have ${u} unread, ${r} read, and ${t} total emails.`,
     tgLoaded:(n,names)=>`Telegram loaded. ${n} contacts: ${names}. Say open followed by a name.`,
-    tgChat:(name,last,r1,r2,r3)=>`Chat with ${name}. Latest: ${last}. AI replies: One: ${r1}. Two: ${r2}. Three: ${r3}.`,
+    tgChat:(name,last,r1,r2,r3)=>`Chat with ${name}. Latest message: ${last}. AI replies. One: ${r1}. Two: ${r2}. Three: ${r3}. Say reply one, two, or three.`,
     whichContact:'Which contact? Say their name.',
     adminOpened:'Opening admin dashboard.',
     dark:'Dark mode enabled.',light:'Light mode enabled.',
@@ -909,7 +910,7 @@ let isDark=true;
 // Auth state
 let authStep='idle';
 let authEmail='', authPassword='', authPIN='';
-let psStep='pin1'; // pin1 | pin1confirm
+let psStep='pin1';
 
 // Email
 let emails=[], emailTab='inbox', selIdx=null;
@@ -922,15 +923,276 @@ let awaitContact=false, tgAI=[];
 
 // Security
 let pendingSendCB=null, awaitConfirm=false;
-let pinEntry='', pinAttempts=0, pinCB=null, pinListening=false;
+let pinEntry='', pinAttempts=0, pinCB=null;
+let pinAwaitingInput=false, pinRetryTimer=null;
 
-// Mic
-let recognition=null, isListening=false, isSpeaking=false;
-let micEnabled=true, restartTimer=null;
-let voiceStarted=false;
+// ════════════════════════════════════════
+//  ★ VOICE ENGINE — COMPLETELY REWRITTEN
+//  Key principles:
+//  1. Mic is OFF while TTS is speaking — zero flicker
+//  2. Mic turns ON only after TTS finishes (onend callback)
+//  3. Single recognition instance — no rapid restarts
+//  4. TTS queue — speaks finish before mic re-enables
+//  5. Deferred init — nothing heavy until user clicks Start
+// ════════════════════════════════════════
+let voiceStarted = false;
+let micEnabled   = false;   // ONLY true when we explicitly want mic open
+let isSpeaking   = false;   // true while TTS is active
+let isListening  = false;   // true while recognition is actively running
+let recognition  = null;
+let micRestartTimer = null;
+// Speech queue: {text, onDone}[]
+let speechQueue  = [];
+let speechBusy   = false;
 
-// Log
-let actLog=JSON.parse(localStorage.getItem('vma_log')||'[]');
+// ── UI helpers ──────────────────────────
+function setMicUI(state) {
+  const bar  = document.getElementById('micBar');
+  const ind  = document.getElementById('micInd');
+  const pulse= document.getElementById('micPulse');
+  const txt  = document.getElementById('micIndTxt');
+  bar.className  = 'mic-bar ' + (state !== 'off' ? state : '');
+  ind.className  = 'mic-ind ' + (state !== 'off' ? state : '');
+  pulse.className= 'mpulse';
+  const labels = {
+    listening : '🎙️ Listening…',
+    speaking  : '🔊 Speaking…',
+    processing: '⚙️ Processing…',
+    off       : '🔇 Mic off'
+  };
+  txt.textContent = labels[state] || '🎙️';
+
+  // Update page-specific dot
+  const dotMap = {
+    home:'homeDot', adminLogin:'adminLoginDot',
+    userLogin:'userLoginDot', userSignup:'userSignupDot',
+    pinSetup:'pinSetupDot', email:'emailDot',
+    telegram:'tgDot', admin:'adminDot'
+  };
+  const dotId = dotMap[currentPage];
+  if (dotId) {
+    const el = document.getElementById(dotId);
+    if (el && (el.classList.contains('vdot') || el.classList.contains('sb-vdot'))) {
+      el.className = el.className.replace(/ on| speak/g, '')
+        + (state === 'listening' ? ' on' : state === 'speaking' ? ' speak' : '');
+    }
+  }
+}
+
+function setSaid(t) {
+  const m = {
+    home:'homeSaid', adminLogin:'adminLoginSaid', userLogin:'userLoginSaid',
+    userSignup:'userSignupSaid', pinSetup:'pinSetupSaid', lang:'langSaid',
+    email:'emailSaid', telegram:'tgSaid', admin:'adminSaid'
+  };
+  const el = document.getElementById(m[currentPage]);
+  if (el) el.textContent = t;
+}
+
+function setResp(t) {
+  const m = {
+    home:'homeResp', adminLogin:'adminLoginResp', userLogin:'userLoginResp',
+    userSignup:'userSignupResp', pinSetup:'pinSetupResp', lang:'langResp',
+    email:'emailResp', telegram:'tgResp', admin:'adminResp'
+  };
+  const el = document.getElementById(m[currentPage]);
+  if (el) el.textContent = t;
+}
+
+// ── TTS Queue — speak() is now queue-safe ──
+function speak(text, onDone) {
+  if (!text) { if (onDone) onDone(); return; }
+  speechQueue.push({ text, onDone: onDone || null });
+  if (!speechBusy) _drainQueue();
+}
+
+function _drainQueue() {
+  if (!speechQueue.length) {
+    speechBusy = false;
+    // Queue empty → mic can open now
+    if (voiceStarted && micEnabled) {
+      clearTimeout(micRestartTimer);
+      micRestartTimer = setTimeout(_startMic, 300);
+    }
+    return;
+  }
+  speechBusy = true;
+  const { text, onDone } = speechQueue.shift();
+
+  // Stop mic FIRST before speaking
+  _stopMic();
+  isSpeaking = true;
+  setMicUI('speaking');
+  setResp(text);
+
+  window.speechSynthesis.cancel(); // clear any leftover
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang    = L.code;
+  u.rate    = 0.92;   // slightly slower — clearer
+  u.pitch   = 1.0;
+  u.volume  = 1.0;
+
+  // Pick best available voice
+  const voices = window.speechSynthesis.getVoices();
+  const v = voices.find(v => v.lang === L.code && !v.localService)  // prefer online
+          || voices.find(v => v.lang === L.code)
+          || voices.find(v => v.lang.startsWith(lang))
+          || voices.find(v => v.lang === 'en-US')
+          || voices[0];
+  if (v) u.voice = v;
+
+  u.onend = () => {
+    isSpeaking = false;
+    if (onDone) {
+      // Run callback first, then continue queue
+      try { onDone(); } catch(e) {}
+      // Small gap before next item
+      setTimeout(_drainQueue, 200);
+    } else {
+      setTimeout(_drainQueue, 200);
+    }
+  };
+  u.onerror = (ev) => {
+    isSpeaking = false;
+    console.warn('TTS error:', ev.error);
+    if (onDone) { try { onDone(); } catch(e) {} }
+    setTimeout(_drainQueue, 300);
+  };
+
+  // Chrome TTS bug workaround: resume if paused
+  window.speechSynthesis.resume();
+  window.speechSynthesis.speak(u);
+
+  // Chrome long-text bug: keep synthesis alive with periodic resume
+  const keepAlive = setInterval(() => {
+    if (!isSpeaking) { clearInterval(keepAlive); return; }
+    window.speechSynthesis.pause();
+    window.speechSynthesis.resume();
+  }, 10000);
+}
+
+// ── Mic control ──────────────────────────
+function _startMic() {
+  // Never start while speaking or already listening
+  if (isSpeaking || isListening || !micEnabled || !voiceStarted) return;
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { setMicUI('off'); return; }
+
+  // Reuse existing instance if possible
+  try {
+    if (recognition) {
+      try { recognition.abort(); } catch(e) {}
+    }
+    recognition = new SR();
+    recognition.lang            = L.code;
+    recognition.continuous      = false;  // ★ false = single utterance, NO flicker
+    recognition.interimResults  = true;
+    recognition.maxAlternatives = 3;
+
+    recognition.onstart = () => {
+      isListening = true;
+      setMicUI('listening');
+    };
+
+    recognition.onresult = (e) => {
+      let interim = '', final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      if (final || interim) setSaid(final || interim);
+
+      if (final) {
+        setMicUI('processing');
+        // Raw mode for auth/PIN steps
+        const rawMode = ['admin_email','admin_pw','admin_email_confirm',
+                         'admin_pw_confirm','ps_pin1','ps_pin1_confirm'].includes(authStep);
+        let cmd = final.trim().toLowerCase();
+        if (!rawMode) {
+          cmd = cmd
+            .replace(/\bat\b/g,'@')
+            .replace(/\bdot com\b/g,'.com')
+            .replace(/\bdot in\b/g,'.in')
+            .replace(/\bdot\b/g,'.');
+        }
+        processCommand(cmd.trim());
+      }
+    };
+
+    recognition.onerror = (ev) => {
+      isListening = false;
+      if (ev.error === 'not-allowed') {
+        micEnabled = false;
+        setMicUI('off');
+        speak('Microphone access blocked. Please allow microphone in browser settings.');
+        return;
+      }
+      // no-speech / audio-capture: silently restart after TTS is done
+      if (!isSpeaking && micEnabled) {
+        clearTimeout(micRestartTimer);
+        micRestartTimer = setTimeout(_startMic, 500);
+      }
+    };
+
+    recognition.onend = () => {
+      isListening = false;
+      // Only restart if we're NOT speaking and mic is still wanted
+      if (!isSpeaking && micEnabled && voiceStarted && !speechBusy) {
+        clearTimeout(micRestartTimer);
+        micRestartTimer = setTimeout(_startMic, 400);
+      } else {
+        // Speaking → setMicUI will be set by speak()
+        if (!isSpeaking) setMicUI('off');
+      }
+    };
+
+    recognition.start();
+  } catch(e) {
+    isListening = false;
+    if (micEnabled && !isSpeaking) {
+      clearTimeout(micRestartTimer);
+      micRestartTimer = setTimeout(_startMic, 800);
+    }
+  }
+}
+
+function _stopMic() {
+  clearTimeout(micRestartTimer);
+  isListening = false;
+  if (recognition) {
+    try { recognition.abort(); } catch(e) {}
+  }
+}
+
+// Public API used by the rest of the code
+function stopMic() {
+  micEnabled = false;
+  _stopMic();
+  setMicUI('off');
+}
+
+function resumeMic() {
+  micEnabled = true;
+  if (!isSpeaking && !speechBusy) {
+    clearTimeout(micRestartTimer);
+    micRestartTimer = setTimeout(_startMic, 200);
+  }
+}
+
+// ── Entry point — called by "Click to Start" button ──
+function userStarted() {
+  if (voiceStarted) return;
+  voiceStarted = true;
+  micEnabled   = true;
+  document.getElementById('startVoiceBtn').style.display = 'none';
+
+  // Pre-load voices
+  window.speechSynthesis.getVoices();
+
+  setResp(L.welcome);
+  speak(L.welcome);
+}
 
 // ════════════════════════════════════════
 //  THEME
@@ -946,6 +1208,8 @@ function toggleTheme(){
 // ════════════════════════════════════════
 //  LOG
 // ════════════════════════════════════════
+let actLog=JSON.parse(localStorage.getItem('vma_log')||'[]');
+
 function log(action){
   const e={time:new Date().toLocaleTimeString(),date:new Date().toLocaleDateString(),user:currentUser?.email||'unknown',action};
   actLog.unshift(e);if(actLog.length>80)actLog=actLog.slice(0,80);
@@ -954,7 +1218,7 @@ function log(action){
 }
 
 // ════════════════════════════════════════
-//  SESSION TIMEOUT CHECK
+//  SESSION TIMEOUT
 // ════════════════════════════════════════
 function handleSessionExpired(){
   document.getElementById('sessionOverlay').classList.add('show');
@@ -968,7 +1232,6 @@ function goToHome(){
   goTo('home');
 }
 
-// Check session every 5 minutes
 setInterval(async()=>{
   if(['email','telegram','admin'].includes(currentPage)){
     try{
@@ -980,135 +1243,6 @@ setInterval(async()=>{
     }catch{}
   }
 },5*60*1000);
-
-// ════════════════════════════════════════
-//  MIC UI
-// ════════════════════════════════════════
-function setMicUI(state){
-  const bar=document.getElementById('micBar'),ind=document.getElementById('micInd');
-  const pulse=document.getElementById('micPulse'),txt=document.getElementById('micIndTxt');
-  bar.className='mic-bar '+(state!=='off'?state:'');
-  ind.className='mic-ind '+(state!=='off'?state:'');
-  pulse.className='mpulse';
-  txt.textContent={listening:'🎙️ Listening…',speaking:'🔊 Speaking…',processing:'⚙️ Processing…',off:'🔇 Off'}[state]||'🎙️';
-  const dots={home:'homeDot',adminLogin:'adminLoginDot',userLogin:'userLoginDot',userSignup:'userSignupDot',pinSetup:'pinSetupDot',lang:'langSaid',email:'emailDot',telegram:'tgDot',admin:'adminDot'};
-  const dotId=dots[currentPage];
-  if(dotId){
-    const el=document.getElementById(dotId);
-    if(el&&(el.classList.contains('vdot')||el.classList.contains('sb-vdot'))){
-      el.className=el.className.replace(/ on| speak/g,'')+(state==='listening'?' on':state==='speaking'?' speak':'');
-    }
-  }
-}
-
-function setSaid(t){
-  const m={home:'homeSaid',adminLogin:'adminLoginSaid',userLogin:'userLoginSaid',userSignup:'userSignupSaid',pinSetup:'pinSetupSaid',lang:'langSaid',email:'emailSaid',telegram:'tgSaid',admin:'adminSaid'};
-  const el=document.getElementById(m[currentPage]);if(el)el.textContent=t;
-}
-function setResp(t){
-  const m={home:'homeResp',adminLogin:'adminLoginResp',userLogin:'userLoginResp',userSignup:'userSignupResp',pinSetup:'pinSetupResp',lang:'langResp',email:'emailResp',telegram:'tgResp',admin:'adminResp'};
-  const el=document.getElementById(m[currentPage]);if(el)el.textContent=t;
-}
-
-// ════════════════════════════════════════
-//  SPEAK — NATURAL PAUSES
-// ════════════════════════════════════════
-function speak(text,onDone){
-  if(!text){if(onDone)onDone();return;}
-  window.speechSynthesis.cancel();
-  isSpeaking=true;isListening=false;
-  setMicUI('speaking');setResp(text);
-  // Add natural pauses using SSML-like replacements
-  const naturalText=text
-    .replace(/\.\s+/g,'. ')   // pause after periods
-    .replace(/,\s+/g,', ')    // pause after commas
-    .replace(/:\s+/g,': ')    // pause after colons
-    .replace(/;\s+/g,'; ');   // pause after semicolons
-  const u=new SpeechSynthesisUtterance(naturalText);
-  u.lang=L.code;u.rate=1.0;u.pitch=1.0;u.volume=1.0;
-  const voices=speechSynthesis.getVoices();
-  const v=voices.find(v=>v.lang===L.code)||voices.find(v=>v.lang.startsWith(lang))||voices.find(v=>v.lang==='en-US')||voices[0];
-  if(v)u.voice=v;
-  u.onend=()=>{isSpeaking=false;if(onDone){onDone();return;}if(micEnabled){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,50);}};
-  u.onerror=()=>{isSpeaking=false;if(onDone){onDone();return;}if(micEnabled)setTimeout(startListening,50);};
-  speechSynthesis.speak(u);
-}
-
-// ════════════════════════════════════════
-//  CLICK TO START (Chrome autoplay fix)
-// ════════════════════════════════════════
-function userStarted(){
-  if(voiceStarted)return;
-  voiceStarted=true;
-  document.getElementById('startVoiceBtn').style.display='none';
-  currentPage='home';
-  speechSynthesis.cancel();
-  const voices=speechSynthesis.getVoices();
-  const v=voices.find(v=>v.lang==='en-US')||voices[0];
-  const u=new SpeechSynthesisUtterance(L.welcome);
-  u.lang=L.code;u.rate=0.95;u.pitch=1.0;u.volume=1.0;
-  if(v)u.voice=v;
-  setMicUI('speaking');setResp(L.welcome);
-  u.onend=()=>{isSpeaking=false;startListening();};
-  u.onerror=()=>{isSpeaking=false;startListening();};
-  isSpeaking=true;
-  speechSynthesis.speak(u);
-}
-
-// ════════════════════════════════════════
-//  ALWAYS-ON MIC
-// ════════════════════════════════════════
-function startListening(){
-  if(isListening||isSpeaking||!micEnabled||!voiceStarted)return;
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){setMicUI('off');return;}
-  try{
-    if(recognition){try{recognition.stop();}catch{}}
-    recognition=new SR();
-    recognition.lang=L.code;
-    recognition.continuous=true;  // STABLE - never auto-stops
-    recognition.interimResults=true;
-    recognition.maxAlternatives=3; // better recognition accuracy
-    recognition.onstart=()=>{isListening=true;setMicUI('listening');};
-    recognition.onresult=(e)=>{
-      let interim='',final='';
-      for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal)final+=e.results[i][0].transcript;
-        else interim+=e.results[i][0].transcript;
-      }
-      if(final||interim)setSaid(final||interim);
-      if(final){
-        setMicUI('processing');
-        const isRaw=authStep==='admin_email'||authStep==='admin_pw'||authStep==='admin_email_confirm'||authStep==='admin_pw_confirm'||authStep==='ps_pin1'||authStep==='ps_pin1_confirm';
-        const cmd=isRaw?final.trim().toLowerCase():final.trim().toLowerCase().replace(/\bat\b/g,'@').replace(/\bdot com\b/g,'.com').replace(/\bdot in\b/g,'.in').replace(/\bdot\b/g,'.');
-        processCommand(cmd.trim());
-        // keep mic running - do not stop
-        if(!isSpeaking)setMicUI('listening');
-      }
-    };
-    recognition.onerror=(ev)=>{
-      isListening=false;
-      if(ev.error==='not-allowed'){setMicUI('off');micEnabled=false;speak('Microphone blocked. Please allow access.');return;}
-      if(ev.error==='no-speech'||ev.error==='audio-capture'){
-        // just restart silently - no flicker
-        if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,200);}
-        return;
-      }
-      if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,300);}
-    };
-    recognition.onend=()=>{
-      isListening=false;
-      // Always restart immediately - no delay - no flicker
-      if(micEnabled&&!isSpeaking){clearTimeout(restartTimer);restartTimer=setTimeout(startListening,150);}
-    };
-    recognition.start();
-  }catch(e){
-    isListening=false;
-    if(micEnabled&&!isSpeaking)setTimeout(startListening,800);
-  }
-}
-function stopMic(){micEnabled=false;isListening=false;clearTimeout(restartTimer);if(recognition)try{recognition.abort();}catch{}setMicUI('off');}
-function resumeMic(){micEnabled=true;clearTimeout(restartTimer);if(!isSpeaking)setTimeout(startListening,100);}
 
 // ════════════════════════════════════════
 //  APPLY LANGUAGE
@@ -1150,8 +1284,8 @@ function handleNavCmd(cmd){
   if(cmd.includes('open gmail')||cmd.includes('ஜிமெயில் திற')||cmd.includes('जीमेल खोलो')){speak(lang==='en'?'Opening Gmail.':lang==='ta'?'ஜிமெயில் திறக்கிறது.':'जीमेल खुल रहा है।',()=>goTo('email'));return true;}
   if(cmd.includes('open telegram')||cmd.includes('டெலிகிராம் திற')||cmd.includes('टेलीग्राम खोलो')){speak(lang==='en'?'Opening Telegram.':lang==='ta'?'டெலிகிராம் திறக்கிறது.':'टेलीग्राम खुल रहा है।',()=>goTo('telegram'));return true;}
   if(cmd.includes('change language')||cmd.includes('மொழி மாற்று')||cmd.includes('भाषा बदलो')){goTo('lang');return true;}
-  if(cmd.includes('dark mode'))  {if(!isDark){toggleTheme();}return true;}
-  if(cmd.includes('light mode')) {if(isDark){toggleTheme();}return true;}
+  if(cmd.includes('dark mode')){if(!isDark){toggleTheme();}return true;}
+  if(cmd.includes('light mode')){if(isDark){toggleTheme();}return true;}
   if(cmd.includes('sign out')||cmd.includes('logout')||cmd.includes('வெளியேறு')||cmd.includes('साइन आउट')){signOut();return true;}
   return false;
 }
@@ -1159,24 +1293,36 @@ function handleNavCmd(cmd){
 function goTo(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   currentPage=page;
-  const map={home:'pageHome',adminLogin:'pageAdminLogin',userLogin:'pageUserLogin',userSignup:'pageUserSignup',pinSetup:'pagePinSetup',lang:'pageLang',email:'pageEmail',telegram:'pageTelegram',admin:'pageAdmin'};
+  const map={home:'pageHome',adminLogin:'pageAdminLogin',userLogin:'pageUserLogin',
+             userSignup:'pageUserSignup',pinSetup:'pagePinSetup',lang:'pageLang',
+             email:'pageEmail',telegram:'pageTelegram',admin:'pageAdmin'};
   document.getElementById(map[page])?.classList.add('active');
 
-  // Show admin nav only for admin
-  ['adminNavBtn','adminNavBtnTg'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=userRole==='admin'?'flex':'none';});
+  ['adminNavBtn','adminNavBtnTg'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=userRole==='admin'?'flex':'none';
+  });
 
-  // Start mic immediately
-  micEnabled=true;clearTimeout(restartTimer);
-  if(voiceStarted)setTimeout(startListening,100);
+  // Re-enable mic for new page (will start after any current TTS finishes)
+  micEnabled=true;
 
   if(page==='home'){authStep='idle';authEmail='';authPassword='';}
   if(page==='email'){document.getElementById('emailUserPill').textContent=currentUser?.email||'';loadEmails();}
   if(page==='telegram'){document.getElementById('tgUserPill').textContent=currentUser?.email||'';loadTg();}
   if(page==='admin'){renderAdmin();checkSys();log('Opened admin');}
-  if(page==='lang')setTimeout(()=>speak(lang==='en'?'Choose your language. Say English, Tamil, or Hindi.':lang==='ta'?'மொழியை தேர்ந்தெடுங்கள்.':'भाषा चुनें।'),400);
-  if(page==='adminLogin'){authStep='admin_email';authEmail='';authPassword='';speak(L.sayEmail);}
-  if(page==='userLogin')speak(lang==='en'?'Say continue with google to sign in.':lang==='ta'?'கொண்டினியூ வித் கூகுள் சொல்லுங்கள்.':'कंटिन्यू विद गूगल कहें।');
-  if(page==='userSignup')speak(lang==='en'?'Say continue with google to create account.':lang==='ta'?'கொண்டினியூ வித் கூகுள் சொல்லுங்கள்.':'कंटिन्यू विद गूगल कहें।');
+  if(page==='lang'){
+    setTimeout(()=>speak(lang==='en'?'Choose your language. Say English, Tamil, or Hindi.':lang==='ta'?'மொழியை தேர்ந்தெடுங்கள்.':'भाषा चुनें।'),200);
+  }
+  if(page==='adminLogin'){
+    authStep='admin_email';authEmail='';authPassword='';
+    speak(L.sayEmail);
+  }
+  if(page==='userLogin'){
+    speak(lang==='en'?'Say continue with google to sign in.':lang==='ta'?'கொண்டினியூ வித் கூகுள் சொல்லுங்கள்.':'कंटिन्यू विद गूगल कहें।');
+  }
+  if(page==='userSignup'){
+    speak(lang==='en'?'Say continue with google to create account.':lang==='ta'?'கொண்டினியூ வித் கூகுள் சொல்லுங்கள்.':'कंटिन्यू विद गूगल कहें।');
+  }
   if(page==='pinSetup'){psStep='pin1';speak(L.sayPin);}
 }
 
@@ -1202,7 +1348,7 @@ function startGoogleLogin(type){
 }
 
 // ════════════════════════════════════════
-//  ADMIN LOGIN — VOICE FLOW
+//  ADMIN LOGIN FLOW
 // ════════════════════════════════════════
 async function submitAdminLogin(){
   const pw=document.getElementById('alPw').value.trim().replace(/\s/g,'');
@@ -1223,7 +1369,7 @@ async function submitAdminLogin(){
 }
 
 // ════════════════════════════════════════
-//  PIN SETUP (after signup)
+//  PIN SETUP
 // ════════════════════════════════════════
 async function submitPinSetup(){
   const pin=document.getElementById('psPin').value.trim();
@@ -1234,7 +1380,7 @@ async function submitPinSetup(){
     const data=await res.json();hideLoader();
     if(data.success){
       userPIN=pin;
-      speak(lang==='en'?`PIN set successfully. Your account is ready.`:lang==='ta'?'பின் அமைக்கப்பட்டது.':'पिन सेट हो गया।',()=>goTo('lang'));
+      speak(lang==='en'?'PIN set successfully. Your account is ready.':lang==='ta'?'பின் அமைக்கப்பட்டது.':'पिन सेट हो गया।',()=>goTo('lang'));
     }else speak(lang==='en'?'Failed to save PIN.':lang==='ta'?'பின் சேமிக்க முடியவில்லை.':'पिन सेव नहीं हुआ।');
   }catch{hideLoader();}
 }
@@ -1329,18 +1475,9 @@ async function openEmail(idx){
   aiReplies=await getAI(e.body||'',fn,e.subject);
   hideLoader();
   pendingReply={to:e.from,subject:e.subject,threadId:e.id};
-  // Clean body - remove HTML tags, extract plain text only
-  const cleanBody=(e.body||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
-  const summary=e.summary||e.snippet||cleanBody.slice(0,200);
-  document.getElementById('emailDetail').innerHTML=`
-    <div class="ehdr"><div class="esubj-big">${e.subject}</div><div class="efrom-row">From: <b>${fn}</b> · ${e.date||''}</div></div>
-    <div class="esummary">📝 ${summary}</div>
-    <div class="ebody">${e.body||e.snippet||''}</div>
-    <div class="ai-box"><div class="ai-title">AI Replies</div>
-    ${aiReplies.map((r,i)=>`<div class="air" id="air${i}" onclick="selectReply(${i})"><span class="air-num">${i+1}.</span>${r}</div>`).join('')}</div>`;
-  log('Email opened');
-  // Read ONLY sender name, subject and clean 2-line summary - no HTML, no full body
-  const cleanSum = (e.summary||e.snippet||e.body||'')
+
+  // Clean summary — strip HTML, URLs, extra whitespace, cap at 180 chars
+  const cleanSum=(e.summary||e.snippet||e.body||'')
     .replace(/<[^>]*>/g,'')
     .replace(/&[a-z]+;/g,' ')
     .replace(/https?:\/\/\S+/g,'')
@@ -1348,11 +1485,22 @@ async function openEmail(idx){
     .replace(/\s+/g,' ')
     .trim()
     .slice(0,180);
-  const spk = lang==='en'
-    ? `Email ${idx+1}. From ${fn}. Subject: ${e.subject}. Summary: ${cleanSum}. Say reply one, two, or three.`
-    : lang==='ta'
-    ? `${idx+1}வது மின்னஞ்சல். ${fn} அனுப்பியது. தலைப்பு: ${e.subject}. சுருக்கம்: ${cleanSum}. பதில் ஒன்று, இரண்டு அல்லது மூன்று சொல்லுங்கள்.`
-    : `ईमेल ${idx+1}। ${fn} से। विषय: ${e.subject}। सारांश: ${cleanSum}। जवाब एक, दो या तीन कहें।`;
+
+  document.getElementById('emailDetail').innerHTML=`
+    <div class="ehdr"><div class="esubj-big">${e.subject}</div><div class="efrom-row">From: <b>${fn}</b> · ${e.date||''}</div></div>
+    <div class="esummary">📝 ${cleanSum}</div>
+    <div class="ebody">${e.body||e.snippet||''}</div>
+    <div class="ai-box"><div class="ai-title">AI Replies</div>
+    ${aiReplies.map((r,i)=>`<div class="air" id="air${i}" onclick="selectReply(${i})"><span class="air-num">${i+1}.</span>${r}</div>`).join('')}</div>`;
+
+  log('Email opened');
+
+  // Voice: sender + subject + SHORT summary only — never full body
+  const spk=lang==='en'
+    ?`Email ${idx+1}. From ${fn}. Subject: ${e.subject}. Summary: ${cleanSum}. Say reply one, two, or three.`
+    :lang==='ta'
+    ?`${idx+1}வது மின்னஞ்சல். ${fn} அனுப்பியது. சுருக்கம்: ${cleanSum}. பதில் ஒன்று இரண்டு அல்லது மூன்று சொல்லுங்கள்.`
+    :`ईमेल ${idx+1}। ${fn} से। सारांश: ${cleanSum}। जवाब एक दो या तीन कहें।`;
   speak(spk);
 }
 
@@ -1370,7 +1518,12 @@ function fallback(body){
 
 function selectReply(idx){
   document.querySelectorAll('.air').forEach((el,i)=>el.classList.toggle('sel',i===idx));
-  if(pendingReply){document.getElementById('cTo').value=pendingReply.to;document.getElementById('cSub').value='Re: '+(pendingReply.subject||'');if(document.getElementById('cBody'))document.getElementById('cBody').value=aiReplies[idx];composeStep=3;}
+  if(pendingReply){
+    document.getElementById('cTo').value=pendingReply.to;
+    document.getElementById('cSub').value='Re: '+(pendingReply.subject||'');
+    if(document.getElementById('cBody'))document.getElementById('cBody').value=aiReplies[idx];
+    composeStep=3;
+  }
   triggerConfirm(`Reply: "${aiReplies[idx]}"`,()=>doSendEmail(pendingReply.to,'Re: '+(pendingReply.subject||''),aiReplies[idx]));
 }
 
@@ -1386,13 +1539,14 @@ function switchEmailTab(t){
 //  COMPOSE
 // ════════════════════════════════════════
 function openCompose(){
-  composeStep=0;if(!pendingReply){document.getElementById('cTo').value='';document.getElementById('cSub').value='';}
+  composeStep=0;
+  if(!pendingReply){document.getElementById('cTo').value='';document.getElementById('cSub').value='';}
   if(document.getElementById('cBody'))document.getElementById('cBody').value='';
   updateCDots();document.getElementById('composeModal').classList.add('show');
   speak(lang==='en'?'Compose email. Say the recipient email.':lang==='ta'?'பெறுநர் மின்னஞ்சலை சொல்லுங்கள்.':'प्राप्तकर्ता ईमेल बोलें।');
 }
 function updateCDots(){
-  const h={en:['Say recipient email','Say subject','Say message','Say confirm'],ta:['பெறுநர் மின்னஞ்சல்','தலைப்பு','செய்தி','உறுதி'],hi:['प्राप्तकर्ता ईमेल','विषय','संदेश','पुष्टि']};
+  const h={en:['Say recipient email','Say subject','Say message','Confirm'],ta:['பெறுநர் மின்னஞ்சல்','தலைப்பு','செய்தி','உறுதி'],hi:['प्राप्तकर्ता ईमेल','विषय','संदेश','पुष्टि']};
   document.getElementById('cDots').innerHTML=[0,1,2].map(i=>`<div class="sdot ${i<composeStep?'done':i===composeStep?'active':''}"></div>`).join('');
   document.getElementById('cHint').textContent=(h[lang]||h.en)[composeStep]||'Ready';
   document.getElementById('cToF').style.display='flex';
@@ -1400,10 +1554,21 @@ function updateCDots(){
   document.getElementById('cBodyF').style.display=composeStep>=2?'flex':'none';
 }
 function composeNext(){
-  if(composeStep===0){const to=document.getElementById('cTo').value.trim().replace(/\bat\b/g,'@').replace(/\bdot\b/g,'.');document.getElementById('cTo').value=to;if(!to){speak(lang==='en'?'Say recipient email.':lang==='ta'?'பெறுநர் மின்னஞ்சல் சொல்லுங்கள்.':'प्राप्तकर्ता बोलें।');return;}composeStep=1;updateCDots();speak(lang==='en'?'Now say the subject.':lang==='ta'?'தலைப்பை சொல்லுங்கள்.':'विषय बोलें।');}
-  else if(composeStep===1){if(!document.getElementById('cSub').value){speak(lang==='en'?'Say the subject.':lang==='ta'?'தலைப்பை சொல்லுங்கள்.':'विषय बोलें।');return;}composeStep=2;updateCDots();speak(lang==='en'?'Now say your message.':lang==='ta'?'செய்தியை சொல்லுங்கள்.':'संदेश बोलें।');}
-  else if(composeStep===2){if(!document.getElementById('cBody').value){speak(lang==='en'?'Say your message.':lang==='ta'?'செய்தியை சொல்லுங்கள்.':'संदेश बोलें।');return;}composeStep=3;updateCDots();speak(L.confirmSend);}
-  else if(composeStep===3){const to=document.getElementById('cTo').value,sub=document.getElementById('cSub').value,body=document.getElementById('cBody').value;closeCompose();triggerConfirm(`To: ${to} | "${sub}"`,()=>doSendEmail(to,sub,body));}
+  if(composeStep===0){
+    const to=document.getElementById('cTo').value.trim().replace(/\bat\b/g,'@').replace(/\bdot\b/g,'.');
+    document.getElementById('cTo').value=to;
+    if(!to){speak(lang==='en'?'Say recipient email.':lang==='ta'?'பெறுநர் மின்னஞ்சல் சொல்லுங்கள்.':'प्राप्तकर्ता बोलें।');return;}
+    composeStep=1;updateCDots();speak(lang==='en'?'Now say the subject.':lang==='ta'?'தலைப்பை சொல்லுங்கள்.':'विषय बोलें।');
+  }else if(composeStep===1){
+    if(!document.getElementById('cSub').value){speak(lang==='en'?'Say the subject.':lang==='ta'?'தலைப்பை சொல்லுங்கள்.':'विषय बोलें।');return;}
+    composeStep=2;updateCDots();speak(lang==='en'?'Now say your message.':lang==='ta'?'செய்தியை சொல்லுங்கள்.':'संदेश बोलें।');
+  }else if(composeStep===2){
+    if(!document.getElementById('cBody').value){speak(lang==='en'?'Say your message.':lang==='ta'?'செய்தியை சொல்லுங்கள்.':'संदेश बोलें।');return;}
+    composeStep=3;updateCDots();speak(L.confirmSend);
+  }else if(composeStep===3){
+    const to=document.getElementById('cTo').value,sub=document.getElementById('cSub').value,body=document.getElementById('cBody').value;
+    closeCompose();triggerConfirm(`To: ${to} | "${sub}"`,()=>doSendEmail(to,sub,body));
+  }
 }
 function closeCompose(){document.getElementById('composeModal').classList.remove('show');composeStep=0;}
 
@@ -1437,9 +1602,11 @@ const DEMO_TG=[
 
 async function loadTg(){
   showLoader(lang==='en'?'Loading Telegram…':lang==='ta'?'டெலிகிராம் ஏற்றுகிறோம்…':'टेलीग्राम लोड हो रहा है…');
-  try{const res=await fetch('/api/telegram/chats');const data=await res.json();
-    if(data.chats&&data.chats.length){tgChats=data.chats.map(c=>({id:String(c.id),name:c.name,initial:c.name[0].toUpperCase(),color:'linear-gradient(135deg,#229ed9,#06b6d4)',status:'online',unread:0,messages:(c.messages||[]).map(m=>({text:m.text,fromMe:m.fromMe,time:m.date}))}));}
-    else tgChats=DEMO_TG;
+  try{
+    const res=await fetch('/api/telegram/chats');const data=await res.json();
+    if(data.chats&&data.chats.length){
+      tgChats=data.chats.map(c=>({id:String(c.id),name:c.name,initial:c.name[0].toUpperCase(),color:'linear-gradient(135deg,#229ed9,#06b6d4)',status:'online',unread:0,messages:(c.messages||[]).map(m=>({text:m.text,fromMe:m.fromMe,time:m.date}))}));
+    }else tgChats=DEMO_TG;
   }catch{tgChats=DEMO_TG;}
   hideLoader();renderContacts();
   const names=tgChats.slice(0,4).map(c=>c.name).join(', ');
@@ -1465,8 +1632,8 @@ function openContact(idx){
 
 function getTgAI(c){
   const last=c.messages[c.messages.length-1],txt=(last?last.text:'').toLowerCase();
-  if(txt.includes('eaten')||txt.includes('food'))     return lang==='ta'?['சாப்பிட்டேன்! ❤️','சீக்கிரம் சாப்பிடுகிறேன்.','சீக்கிரம் வருகிறேன்!']:lang==='hi'?['हाँ खा लिया! ❤️','अभी खाऊंगा।','जल्दी आऊंगा!']:['Yes I ate! ❤️','Will eat soon!','Coming shortly!'];
-  if(txt.includes('meeting')||txt.includes('sprint')) return lang==='ta'?['உறுதி, வருகிறேன்.','நன்றி!','லிங்க் அனுப்புங்கள்.']:lang==='hi'?['पुष्टि, आऊंगा।','धन्यवाद!','लिंक भेजें।']:['Confirmed!','Thanks!','Send the link.'];
+  if(txt.includes('eaten')||txt.includes('food'))return lang==='ta'?['சாப்பிட்டேன்! ❤️','சீக்கிரம் சாப்பிடுகிறேன்.','சீக்கிரம் வருகிறேன்!']:lang==='hi'?['हाँ खा लिया! ❤️','अभी खाऊंगा।','जल्दी आऊंगा!']:['Yes I ate! ❤️','Will eat soon!','Coming shortly!'];
+  if(txt.includes('meeting')||txt.includes('sprint'))return lang==='ta'?['உறுதி, வருகிறேன்.','நன்றி!','லிங்க் அனுப்புங்கள்.']:lang==='hi'?['पुष्टि, आऊंगा।','धन्यवाद!','लिंक भेजें।']:['Confirmed!','Thanks!','Send the link.'];
   return lang==='ta'?['சரி, நன்றி!','நிச்சயம்.','விரைவில்.']:lang==='hi'?['ठीक है!','हाँ।','जल्दी।']:['Got it!','Sure!','Will do!'];
 }
 
@@ -1490,7 +1657,8 @@ function selectTgReply(idx){
 }
 
 function initTgSend(){
-  const inp=document.getElementById('tgInp');if(!inp||!inp.value.trim()){speak(lang==='en'?'Say a message first.':lang==='ta'?'செய்தி சொல்லுங்கள்.':'संदेश बोलें।');return;}
+  const inp=document.getElementById('tgInp');
+  if(!inp||!inp.value.trim()){speak(lang==='en'?'Say a message first.':lang==='ta'?'செய்தி சொல்லுங்கள்.':'संदेश बोलें।');return;}
   pendingTgMsg=inp.value.trim();
   triggerConfirm(`${tgChats[selContact].name}: "${pendingTgMsg}"`,()=>doSendTg(tgChats[selContact]));
 }
@@ -1529,9 +1697,8 @@ function confirmNo(){
 }
 
 async function requirePIN(callback){
-  // Fetch user's PIN from server
   try{const r=await fetch('/api/user/pin');const d=await r.json();if(d.pin)userPIN=String(d.pin).trim();}catch{}
-  pinEntry='';pinAttempts=0;pinCB=callback;pinListening=false;
+  pinEntry='';pinAttempts=0;pinCB=callback;pinAwaitingInput=false;
   updatePDs();
   document.getElementById('pinAttempts').textContent='';
   document.getElementById('pinIco').textContent='🔐';
@@ -1539,46 +1706,33 @@ async function requirePIN(callback){
   document.getElementById('pinSub').textContent=L.enterPIN;
   document.getElementById('pinBox').className='pin-modal-box';
   document.getElementById('pinVoiceIco').textContent='🎙️';
-  document.getElementById('pinVoiceStatus').textContent=lang==='en'?'Listening for your PIN…':lang==='ta'?'பின் கேட்கிறோம்…':'पिन सुन रहे हैं…';
+  document.getElementById('pinVoiceStatus').textContent=lang==='en'?'Listening…':lang==='ta'?'கேட்கிறோம்…':'सुन रहे हैं…';
   document.getElementById('pinModal').classList.add('show');
   setSecL(currentPage==='telegram'?'t':'e',3);
-  speak(L.enterPIN,()=>listenForPIN());
+  // Speak PIN prompt, then flag we want PIN input
+  speak(L.enterPIN, () => {
+    pinAwaitingInput = true;
+    document.getElementById('pinVoiceIco').textContent='🔴';
+    document.getElementById('pinVoiceStatus').textContent=lang==='en'?'🔴 Say your PIN now…':lang==='ta'?'🔴 பின் சொல்லுங்கள்…':'🔴 पिन बोलें…';
+    // Mic auto-starts because speak() onDone triggers _drainQueue → _startMic
+  });
 }
 
-function listenForPIN(){
-  if(pinListening)return;
-  pinListening=true;
-  document.getElementById('pinVoiceIco').textContent='🔴';
-  document.getElementById('pinVoiceStatus').textContent=lang==='en'?'🔴 Listening for PIN…':lang==='ta'?'🔴 பின் கேட்கிறோம்…':'🔴 पिन सुन रहे हैं…';
-  // Use main recognition - already running - just flag we want PIN next result
-  pinAwaitingInput=true;
-  // Ensure mic is running
-  if(!isListening&&!isSpeaking)startListening();
-  // Fallback timeout - if no input in 8 seconds retry
-  clearTimeout(pinRetryTimer);
-  pinRetryTimer=setTimeout(()=>{
-    if(pinAwaitingInput&&document.getElementById('pinModal').classList.contains('show')){
-      pinListening=false;
-      listenForPIN();
-    }
-  },8000);
-}
-let pinAwaitingInput=false;
-let pinRetryTimer=null;
+function updatePDs(){for(let i=0;i<4;i++)document.getElementById('pd'+i).className='pd'+(i<pinEntry.length?' filled':'');}
 
 function extractDigits(said){
-  const wm={zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',சுழியம்:'0',ஒன்று:'1',இரண்டு:'2',மூன்று:'3',நான்கு:'4',ஐந்து:'5',ஆறு:'6',ஏழு:'7',எட்டு:'8',ஒன்பது:'9',शून्य:'0',एक:'1',दो:'2',तीन:'3',चार:'4',पाँच:'5',छह:'6',सात:'7',आठ:'8',नौ:'9'};
+  const wm={zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',
+    சுழியம்:'0',ஒன்று:'1',இரண்டு:'2',மூன்று:'3',நான்கு:'4',ஐந்து:'5',ஆறு:'6',ஏழு:'7',எட்டு:'8',ஒன்பது:'9',
+    शून्य:'0',एक:'1',दो:'2',तीन:'3',चार:'4',पाँच:'5',छह:'6',सात:'7',आठ:'8',नौ:'9'};
   let d=said.replace(/\D/g,'');
   if(d.length===4)return d;
   d=said.split(/\s+/).map(w=>wm[w]||w.replace(/\D/g,'')).join('').slice(0,4);
   return d;
 }
-function updatePDs(){for(let i=0;i<4;i++)document.getElementById('pd'+i).className='pd'+(i<pinEntry.length?' filled':'');}
 
 function verifyPIN(){
   const entered=String(pinEntry).trim();
   const stored=String(userPIN).trim();
-  console.log('PIN verify — stored:',stored,'entered:',entered);
   if(entered===stored){
     document.getElementById('pinIco').textContent='✅';
     document.getElementById('pinTitle').textContent=lang==='ta'?'சரிபார்க்கப்பட்டது ✅':lang==='hi'?'सत्यापित ✅':'Verified ✅';
@@ -1586,7 +1740,11 @@ function verifyPIN(){
     for(let i=0;i<4;i++)document.getElementById('pd'+i).className='pd ok';
     document.getElementById('pinVoiceStatus').textContent=lang==='en'?'PIN accepted!':lang==='ta'?'பின் ஏற்றுக்கொள்ளப்பட்டது!':'पिन स्वीकार!';
     log('✅ PIN verified');
-    speak(L.pinOk,()=>{document.getElementById('pinModal').classList.remove('show');pinEntry='';pinListening=false;if(pinCB){pinCB();pinCB=null;}});
+    speak(L.pinOk,()=>{
+      document.getElementById('pinModal').classList.remove('show');
+      pinEntry='';pinAwaitingInput=false;
+      if(pinCB){pinCB();pinCB=null;}
+    });
   }else{
     pinAttempts++;pinEntry='';
     for(let i=0;i<4;i++)document.getElementById('pd'+i).className='pd err';
@@ -1599,12 +1757,22 @@ function verifyPIN(){
       const left=3-pinAttempts;
       document.getElementById('pinAttempts').textContent=L.pinWrong(left);
       log(`❌ Wrong PIN ${pinAttempts}/3`);
-      speak(L.pinWrong(left),()=>listenForPIN());
+      // Re-prompt for PIN
+      speak(L.pinWrong(left), () => {
+        pinAwaitingInput=true;
+        document.getElementById('pinVoiceIco').textContent='🔴';
+        document.getElementById('pinVoiceStatus').textContent=lang==='en'?'🔴 Say your PIN again…':lang==='ta'?'🔴 மீண்டும் சொல்லுங்கள்…':'🔴 फिर बोलें…';
+      });
     }
   }
 }
 
-function cancelPin(){document.getElementById('pinModal').classList.remove('show');pinCB=null;pinEntry='';pinListening=false;speak(L.cancelled);log('PIN cancelled');}
+function cancelPin(){
+  document.getElementById('pinModal').classList.remove('show');
+  pinCB=null;pinEntry='';pinAwaitingInput=false;
+  speak(L.cancelled);log('PIN cancelled');
+}
+
 function setSecL(p,layer,passed){
   const s2=document.getElementById(p+'sl2'),s3=document.getElementById(p+'sl3');if(!s2)return;
   if(layer===2)s2.className='sl wait';
@@ -1614,189 +1782,61 @@ function setSecL(p,layer,passed){
 }
 
 // ════════════════════════════════════════
-//  ADMIN DASHBOARD
-// ════════════════════════════════════════
-function cnt(kw){return actLog.filter(e=>e.action.toLowerCase().includes(kw)).length;}
-
-async function renderAdmin(){
-  actLog=JSON.parse(localStorage.getItem('vma_log')||'[]');
-  // Fetch server stats
-  try{const r=await fetch('/api/admin/stats');const d=await r.json();
-    document.getElementById('as1').textContent=d.totalUsers||0;
-    document.getElementById('as2').textContent=d.emailsSent||0;
-    document.getElementById('as3').textContent=d.tgMessages||0;
-    document.getElementById('as4').textContent=d.pinSuccess||0;
-    document.getElementById('as5').textContent=d.pinFailed||0;
-  }catch{
-    document.getElementById('as1').textContent=cnt('logged in');
-    document.getElementById('as2').textContent=cnt('email to');
-    document.getElementById('as3').textContent=cnt('tg:');
-    document.getElementById('as4').textContent=cnt('pin verified');
-    document.getElementById('as5').textContent=cnt('pin failed')+cnt('blocked');
-  }
-  document.getElementById('adminSub').textContent='VoiceMailAssist — '+new Date().toLocaleString();
-
-  const logEl=document.getElementById('adminLog');
-  if(!actLog.length)logEl.innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">No activity yet.</div>';
-  else logEl.innerHTML=actLog.slice(0,12).map(e=>{
-    const c=e.action.includes('✅')?'var(--green)':e.action.includes('🚫')||e.action.includes('❌')?'var(--red)':e.action.includes('logged')?'var(--cyan)':'var(--purple)';
-    return `<div class="log-item"><div class="log-dot" style="background:${c}"></div><div class="log-info"><div class="log-action">${e.action}</div><div class="log-user">👤 ${e.user}</div></div><div class="log-time">${e.time}</div></div>`;
-  }).join('');
-
-  const secEl=document.getElementById('adminSec');
-  const sec=actLog.filter(e=>{const a=e.action.toLowerCase();return a.includes('pin')||a.includes('login')||a.includes('block');}).slice(0,10);
-  secEl.innerHTML=sec.length?sec.map(e=>{const ico=e.action.includes('✅')||e.action.includes('logged')?'✅':e.action.includes('🚫')||e.action.includes('block')?'🚫':'⚠️';return `<div class="log-item"><div style="font-size:12px;flex-shrink:0">${ico}</div><div class="log-info"><div class="log-action">${e.action}</div><div class="log-user">👤 ${e.user} · ${e.time}</div></div></div>`;}).join(''):'<div style="padding:18px;text-align:center;color:var(--muted)">No events.</div>';
-
-  drawChart();
-  loadAdminUsers();
-  loadEmailReport();
-  loadAnalytics();
-}
-
-async function loadAdminUsers(){
-  try{
-    const r=await fetch('/api/admin/users');const d=await r.json();
-    document.getElementById('adminUsers').innerHTML=(d.users||[]).map(u=>`<tr><td><span class="av">${(u.initial||u.email[0]).toUpperCase()}</span>${u.email}</td><td><span class="badge badge-user">User</span></td><td>Active</td><td><button class="del-btn" onclick="removeUser('${u.email}')">Remove</button></td></tr>`).join('');
-  }catch{document.getElementById('adminUsers').innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:12px">No users yet</td></tr>';}
-}
-
-async function removeUser(email){
-  if(!confirm(`Remove user ${email}?`))return;
-  try{await fetch('/api/admin/users/'+encodeURIComponent(email),{method:'DELETE'});loadAdminUsers();log('Admin removed: '+email);showToast('User removed','success');}
-  catch{showToast('Failed','error');}
-}
-
-async function loadEmailReport(){
-  try{
-    const r=await fetch('/api/admin/email-report');const d=await r.json();
-    document.getElementById('emailReport').innerHTML=(d.report||[]).map(u=>`<tr><td>${u.email.split('@')[0]}</td><td>${u.emailsSent}</td><td>${u.lastLogin==='Never'?'Never':new Date(u.lastLogin).toLocaleDateString()}</td><td>${u.hasPin?'✅':'❌'}</td></tr>`).join('');
-  }catch{}
-}
-
-async function loadAnalytics(){
-  try{
-    const r=await fetch('/api/admin/analytics');const d=await r.json();
-    drawAnalytics(d.byUser||{});
-  }catch{}
-}
-
-function drawAnalytics(byUser){
-  const canvas=document.getElementById('analyticsChart');if(!canvas)return;
-  const ctx=canvas.getContext('2d');const W=canvas.offsetWidth||400,H=150;
-  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
-  const users=Object.keys(byUser).slice(0,5);
-  if(!users.length){ctx.fillStyle='var(--muted)';ctx.font='12px DM Sans';ctx.textAlign='center';ctx.fillText('No data yet',W/2,H/2);return;}
-  const maxVal=Math.max(...users.map(u=>byUser[u].emailsSent||0),1);
-  const barW=Math.min(40,(W-40)/users.length-10);
-  users.forEach((u,i)=>{
-    const x=30+i*(barW+10);const val=byUser[u].emailsSent||0;const barH=(val/maxVal)*(H-40);
-    ctx.fillStyle='#7c3aed';ctx.fillRect(x,H-30-barH,barW,barH);
-    ctx.fillStyle=isDark?'#64748b':'#475569';ctx.font='9px DM Sans';ctx.textAlign='center';
-    ctx.fillText(u.split('@')[0].slice(0,6),x+barW/2,H-15);
-    ctx.fillStyle='#7c3aed';ctx.fillText(val,x+barW/2,H-35-barH);
-  });
-}
-
-function drawChart(){
-  const canvas=document.getElementById('lineChart');if(!canvas)return;
-  const ctx=canvas.getContext('2d');const W=canvas.offsetWidth||800,H=150;
-  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
-  const cats=[{l:'Email Read',kw:'read',c:'#7c3aed'},{l:'Sent',kw:'sent email',c:'#06b6d4'},{l:'TG',kw:'telegram',c:'#229ed9'},{l:'PIN OK',kw:'pin verified',c:'#10b981'},{l:'PIN Fail',kw:'pin failed',c:'#ef4444'},{l:'Logins',kw:'logged in',c:'#f59e0b'}];
-  const vals=cats.map(c=>cnt(c.kw));const maxVal=Math.max(...vals,1);
-  const pL=38,pR=16,pT=18,pB=28,gW=W-pL-pR,gH=H-pT-pB;
-  ctx.strokeStyle='rgba(30,35,64,.8)';ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=pT+(gH/4)*i;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font='9px sans-serif';ctx.fillText(Math.round(maxVal-(maxVal/4)*i),2,y+3);}
-  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='9px sans-serif';
-  const step=gW/(cats.length-1);
-  cats.forEach((c,i)=>ctx.fillText(c.l.split(' ')[0],pL+i*step,H-6));
-  const grad=ctx.createLinearGradient(0,pT,0,pT+gH);grad.addColorStop(0,'rgba(124,58,237,.3)');grad.addColorStop(1,'rgba(124,58,237,0)');
-  ctx.beginPath();vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
-  ctx.lineTo(pL+(cats.length-1)*step,pT+gH);ctx.lineTo(pL,pT+gH);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-  ctx.beginPath();ctx.strokeStyle='#7c3aed';ctx.lineWidth=2;
-  vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();
-  vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=cats[i].c;ctx.fill();ctx.strokeStyle=isDark?'#111428':'#f8f9fe';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=cats[i].c;ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText(v,x,y-7);});
-}
-
-async function checkSys(){
-  const el=document.getElementById('adminSys');
-  const svcs=[{name:'Gmail API',ico:'📬',key:'gmail'},{name:'Telegram Bot',ico:'✈️',key:'telegram'},{name:'Admin Dashboard',ico:'🛡️',key:'admin'}];
-  el.innerHTML=svcs.map(s=>`<div class="sys-row"><span style="font-size:13px">${s.ico}</span><div class="sys-name">${s.name}</div><span class="sys-badge sys-warn" id="sysbadge_${s.key}">Checking…</span></div>`).join('');
-  try{const r=await fetch('/api/admin/status');const d=await r.json();setSB('gmail',d.gmail);setSB('telegram',d.telegram);}catch{setSB('gmail',false);setSB('telegram',false);}
-  setSB('admin',true);
-}
-function setSB(key,ok){const el=document.getElementById('sysbadge_'+key);if(!el)return;el.className=`sys-badge ${ok?'sys-up':'sys-down'}`;el.textContent=ok?'● Online':'● Offline';}
-
-// Export logs as PDF (using browser print)
-async function exportLogs(){
-  try{
-    const r=await fetch('/api/admin/export-logs');const logs=await r.json();
-    const win=window.open('','_blank');
-    win.document.write(`<html><head><title>VoiceMailAssist Activity Log</title><style>body{font-family:sans-serif;padding:20px;}h1{color:#7c3aed;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;font-size:12px;}th{background:#7c3aed;color:white;}</style></head><body><h1>VoiceMailAssist Activity Log</h1><p>Exported: ${new Date().toLocaleString()}</p><table><thead><tr><th>Time</th><th>Date</th><th>User</th><th>Action</th></tr></thead><tbody>${logs.map(l=>`<tr><td>${l.time}</td><td>${l.date}</td><td>${l.user}</td><td>${l.action}</td></tr>`).join('')}</tbody></table></body></html>`);
-    win.document.close();win.print();
-    log('Admin exported logs as PDF');
-    speak(lang==='en'?'Logs exported. Print dialog opened.':lang==='ta'?'பதிவுகள் ஏற்றுமதி செய்யப்பட்டன.':'लॉग्स एक्सपोर्ट हुए।');
-  }catch{showToast('Export failed','error');}
-}
-
-// ════════════════════════════════════════
-//  SIGN OUT
-// ════════════════════════════════════════
-function signOut(){
-  log('Signed out');stopMic();
-  speak(L.signOut,()=>{fetch('/auth/logout').catch(()=>{});currentUser=null;userRole='user';userPIN='0413';voiceStarted=false;window.location.href='/app.html';});
-}
-
-// ════════════════════════════════════════
 //  COMMAND PROCESSOR
 // ════════════════════════════════════════
 function processCommand(cmd){
-  // ── PIN INTERCEPT - highest priority ──
-  if(pinAwaitingInput&&document.getElementById('pinModal').classList.contains('show')){
-    clearTimeout(pinRetryTimer);
-    pinAwaitingInput=false;pinListening=false;
+  // ── PIN intercept — highest priority ──
+  if(pinAwaitingInput && document.getElementById('pinModal').classList.contains('show')){
+    pinAwaitingInput=false;
     document.getElementById('pinVoiceIco').textContent='🎙️';
     document.getElementById('pinVoiceStatus').textContent=`"${cmd}"`;
     const digits=extractDigits(cmd);
-    if(digits.length===4){pinEntry=digits;updatePDs();setTimeout(verifyPIN,400);}
-    else{
-      speak(lang==='en'?'Could not hear 4 digits. Say your PIN again.':lang==='ta'?'4 இலக்கங்கள் கேட்கவில்லை. மீண்டும் சொல்லுங்கள்.':'4 अंक नहीं सुने। फिर बोलें।',()=>listenForPIN());
+    if(digits.length===4){
+      pinEntry=digits;updatePDs();
+      setTimeout(verifyPIN,300);
+    }else{
+      speak(lang==='en'?'Please say exactly 4 digits clearly.':lang==='ta'?'4 இலக்கங்கள் மட்டும் சொல்லுங்கள்.':'सिर्फ 4 अंक बोलें।',()=>{
+        pinAwaitingInput=true;
+        document.getElementById('pinVoiceIco').textContent='🔴';
+        document.getElementById('pinVoiceStatus').textContent=lang==='en'?'🔴 Try again…':lang==='ta'?'🔴 மீண்டும்…':'🔴 फिर बोलें…';
+      });
     }
     return;
   }
-  // ── PRIORITY 1: Cancel/reset commands ──
+
+  // ── Cancel commands ──
   if(cmd.includes('cancel')||cmd.includes('ரத்து')||cmd.includes('रद्द')){
     if(document.getElementById('composeModal').classList.contains('show')){closeCompose();speak(L.cancelled);return;}
     if(document.getElementById('confOverlay').classList.contains('show')){confirmNo();return;}
     if(document.getElementById('pinModal').classList.contains('show')){cancelPin();return;}
-    // Cancel entire auth flow
     if(['admin_email','admin_pw','admin_email_confirm','admin_pw_confirm'].includes(authStep)){
       authStep='idle';authEmail='';authPassword='';
-      speak(lang==='en'?'Cancelled. Say admin login, user login, or sign up.':lang==='ta'?'ரத்து. மீண்டும் தொடங்குங்கள்.':'रद्द। फिर शुरू करें।',()=>goTo('home'));return;
+      speak(lang==='en'?'Cancelled.':lang==='ta'?'ரத்து.':'रद्द।',()=>goTo('home'));return;
     }
   }
 
-  // ── PRIORITY 2: Re-route to login/signup during any flow ──
+  // ── Navigation shortcuts ──
   if(cmd.includes('admin login')&&currentPage!=='adminLogin'){goTo('adminLogin');return;}
   if((cmd.includes('user login')||cmd.includes('sign in'))&&currentPage!=='userLogin'){goTo('userLogin');return;}
   if((cmd.includes('sign up')||cmd.includes('new user'))&&currentPage!=='userSignup'){goTo('userSignup');return;}
 
-  // ── PRIORITY 3: Global nav ──
+  // ── Global nav ──
   if(isNavCmd(cmd)){handleNavCmd(cmd);return;}
 
   // ── Confirm overlay intercept ──
   if(awaitConfirm){
     const yes=cmd.includes('yes')||cmd.includes('correct')||cmd.includes('ஆம்')||cmd.includes('सही')||cmd.includes('हाँ');
-    const no=cmd.includes('no')||cmd.includes('wrong')||cmd.includes('இல்லை')||cmd.includes('तवरु')||cmd.includes('गलत')||cmd.includes('नहीं');
+    const no=cmd.includes('no')||cmd.includes('wrong')||cmd.includes('இல்லை')||cmd.includes('गलत')||cmd.includes('नहीं');
     if(yes){confirmYes();return;}
     if(no){confirmNo();return;}
     speak(L.confirmSend);return;
   }
 
-  // Compose intercept
+  // ── Compose intercept ──
   if(document.getElementById('composeModal').classList.contains('show')){handleComposeVoice(cmd);return;}
 
-  // Route by page
-  if(currentPage==='home')          cmdHome(cmd);
+  // ── Route by page ──
+  if(currentPage==='home')               cmdHome(cmd);
   else if(currentPage==='adminLogin')    cmdAdminLogin(cmd);
   else if(currentPage==='userLogin')     cmdUserLogin(cmd);
   else if(currentPage==='userSignup')    cmdUserSignup(cmd);
@@ -1815,11 +1855,8 @@ function cmdHome(cmd){
 }
 
 function cmdAdminLogin(cmd){
-  // Handle cancel/goto
-  if(cmd.includes('login')||cmd.includes('sign in'))return; // prevent re-trigger
-
+  if(cmd.includes('login')||cmd.includes('sign in'))return;
   if(authStep==='admin_email'){
-    // Convert spoken email
     const emailFromSpeech=convertSpokenEmail(cmd);
     if(emailFromSpeech&&emailFromSpeech.includes('@')&&emailFromSpeech.includes('.')){
       authEmail=emailFromSpeech;
@@ -1839,7 +1876,6 @@ function cmdAdminLogin(cmd){
     return;
   }
   if(authStep==='admin_pw'){
-    // Capture spoken password as-is
     const spokenPw=cmd.trim().replace(/\s/g,'');
     if(spokenPw&&spokenPw.length>=4){
       authPassword=spokenPw;
@@ -1892,7 +1928,7 @@ function cmdPinSetup(cmd){
 }
 
 function updatePinSetupDots(pin){
-  for(let i=0;i<4;i++) document.getElementById('psd'+i).className='pd'+(i<pin.length?' filled':'');
+  for(let i=0;i<4;i++)document.getElementById('psd'+i).className='pd'+(i<pin.length?' filled':'');
 }
 
 function cmdLang(cmd){
@@ -1903,6 +1939,7 @@ function cmdLang(cmd){
 }
 
 function matchesNum(cmd,words){return words.some(w=>cmd.includes(w));}
+
 function cmdEmail(cmd){
   if(cmd.includes('read email')||cmd.includes('read mail')||cmd.includes('check email')||cmd.includes('மின்னஞ்சல் படி')||cmd.includes('ईमेल पढ़ो')){awaitSection=true;speak(L.chooseSection);return;}
   if(awaitSection){
@@ -1915,18 +1952,16 @@ function cmdEmail(cmd){
   }
   if(cmd.includes('send email')||cmd.includes('compose')||cmd.includes('new email')||cmd.includes('மின்னஞ்சல் அனுப்பு')||cmd.includes('ईमेल भेजो'))openCompose();
   else if(cmd.includes('count')||cmd.includes('how many')||cmd.includes('மின்னஞ்சல் எண்ணு')||cmd.includes('ईमेल गिनो'))countEmailsVoice();
-  else if(cmd.includes('stop')||cmd.includes('quiet')||cmd.includes('நிறுத்து')||cmd.includes('रुको')){window.speechSynthesis.cancel();setMicUI('listening');}
+  else if(cmd.includes('stop')||cmd.includes('quiet')||cmd.includes('நிறுத்து')||cmd.includes('रुको')){window.speechSynthesis.cancel();speechBusy=false;speechQueue=[];isSpeaking=false;resumeMic();}
   else if(cmd.includes('refresh')||cmd.includes('reload'))loadEmails();
-  // Reply commands - enhanced matching
-  else if(matchesNum(cmd,['reply one','reply 1','reply first','first reply','one reply','ஒன்று பதில்','एक जवाब']))   {if(aiReplies[0])selectReply(0);}
-  else if(matchesNum(cmd,['reply two','reply 2','reply second','second reply','two reply','இரண்டு பதில்','दो जवाब']))  {if(aiReplies[1])selectReply(1);}
+  else if(matchesNum(cmd,['reply one','reply 1','reply first','first reply','one reply','ஒன்று பதில்','एक जवाब'])){if(aiReplies[0])selectReply(0);}
+  else if(matchesNum(cmd,['reply two','reply 2','reply second','second reply','two reply','இரண்டு பதில்','दो जवाब'])){if(aiReplies[1])selectReply(1);}
   else if(matchesNum(cmd,['reply three','reply 3','reply third','third reply','three reply','மூன்று பதில்','तीन जवाब'])){if(aiReplies[2])selectReply(2);}
-  // Open commands - enhanced matching for small commands
-  else if(matchesNum(cmd,['open one','open 1','first','number one','email one','one','1st','first email']))   {if(emails[0])openEmail(0);}
-  else if(matchesNum(cmd,['open two','open 2','second','number two','email two','two','2nd','second email']))  {if(emails[1])openEmail(1);}
+  else if(matchesNum(cmd,['open one','open 1','first','number one','email one','one','1st','first email'])){if(emails[0])openEmail(0);}
+  else if(matchesNum(cmd,['open two','open 2','second','number two','email two','two','2nd','second email'])){if(emails[1])openEmail(1);}
   else if(matchesNum(cmd,['open three','open 3','third','number three','email three','three','3rd','third email'])){if(emails[2])openEmail(2);}
-  else if(matchesNum(cmd,['open four','open 4','fourth','number four','email four','four','4th','fourth email'])) {if(emails[3])openEmail(3);}
-  else if(matchesNum(cmd,['open five','open 5','fifth','number five','email five','five','5th','fifth email']))  {if(emails[4])openEmail(4);}
+  else if(matchesNum(cmd,['open four','open 4','fourth','number four','email four','four','4th','fourth email'])){if(emails[3])openEmail(3);}
+  else if(matchesNum(cmd,['open five','open 5','fifth','number five','email five','five','5th','fifth email'])){if(emails[4])openEmail(4);}
   else speak(lang==='en'?'Say read emails, send email, count, or open one to five.':lang==='ta'?'மின்னஞ்சல் படி, அனுப்பு, எண்ணு என்று சொல்லுங்கள்.':'ईमेल पढ़ो, भेजो, या गिनो कहें।');
 }
 
@@ -1938,8 +1973,7 @@ async function loadEmailsAndRead(){
 }
 
 function handleComposeVoice(cmd){
-  const cancel=cmd.includes('cancel')||cmd.includes('ரத்து')||cmd.includes('रद्द');
-  if(cancel){closeCompose();speak(L.cancelled);return;}
+  if(cmd.includes('cancel')||cmd.includes('ரத்து')||cmd.includes('रद्द')){closeCompose();speak(L.cancelled);return;}
   if((cmd.includes('confirm')||cmd.includes('yes')||cmd.includes('ஆம்')||cmd.includes('हाँ'))&&composeStep===3){composeNext();return;}
   const cleaned=cmd.replace(/\bat\b/g,'@').replace(/\bdot com\b/g,'.com').replace(/\bdot\b/g,'.').trim();
   if(composeStep===0){document.getElementById('cTo').value=cleaned.replace(/\s/g,'');composeNext();}
@@ -1953,18 +1987,149 @@ function cmdTg(cmd){
     if(idx>=0){awaitContact=false;openContact(idx);}else speak(L.whichContact);return;
   }
   if(cmd.includes('read chat')||cmd.includes('சாட் படி')||cmd.includes('चैट पढ़ो')){awaitContact=true;speak(L.whichContact);}
-  else if(cmd.match(/reply\s*(one|1|ஒன்று|एक)/))   {if(tgAI[0])selectTgReply(0);}
-  else if(cmd.match(/reply\s*(two|2|இரண்டு|दो)/))  {if(tgAI[1])selectTgReply(1);}
+  else if(cmd.match(/reply\s*(one|1|ஒன்று|एक)/)){if(tgAI[0])selectTgReply(0);}
+  else if(cmd.match(/reply\s*(two|2|இரண்டு|दो)/)){if(tgAI[1])selectTgReply(1);}
   else if(cmd.match(/reply\s*(three|3|மூன்று|तीन)/)){if(tgAI[2])selectTgReply(2);}
   else if(cmd.startsWith('open ')){const q=cmd.replace(/^open\s*/,'').trim();const idx=tgChats.findIndex(c=>c.name.toLowerCase().includes(q));if(idx>=0)openContact(idx);else{awaitContact=true;speak(L.whichContact);}}
-  else if(cmd.includes('stop')){window.speechSynthesis.cancel();setTimeout(startListening,300);}
+  else if(cmd.includes('stop')){window.speechSynthesis.cancel();speechBusy=false;speechQueue=[];isSpeaking=false;resumeMic();}
   else speak(lang==='en'?'Say read chat, open a name, or reply one two three.':lang==='ta'?'சாட் படி அல்லது [பெயர்] திற.':'चैट पढ़ो या नाम खोलो।');
 }
 
 function cmdAdmin(cmd){
-  if(cmd.includes('refresh'))    {renderAdmin();speak(lang==='en'?'Admin refreshed.':lang==='ta'?'புதுப்பிக்கப்பட்டது.':'रिफ्रेश हो गया।');}
+  if(cmd.includes('refresh')){renderAdmin();speak(lang==='en'?'Admin refreshed.':lang==='ta'?'புதுப்பிக்கப்பட்டது.':'रिफ्रेश हो गया।');}
   else if(cmd.includes('export')||cmd.includes('pdf'))exportLogs();
   else speak(lang==='en'?'Say open gmail, open telegram, refresh, export logs, or sign out.':lang==='ta'?'ஜிமெயில் திற, டெலிகிராம் திற, அல்லது வெளியேறு.':'जीमेल खोलो, टेलीग्राम खोलो, या साइन आउट।');
+}
+
+// ════════════════════════════════════════
+//  ADMIN DASHBOARD
+// ════════════════════════════════════════
+function cnt(kw){return actLog.filter(e=>e.action.toLowerCase().includes(kw)).length;}
+
+async function renderAdmin(){
+  actLog=JSON.parse(localStorage.getItem('vma_log')||'[]');
+  try{
+    const r=await fetch('/api/admin/stats');const d=await r.json();
+    document.getElementById('as1').textContent=d.totalUsers||0;
+    document.getElementById('as2').textContent=d.emailsSent||0;
+    document.getElementById('as3').textContent=d.tgMessages||0;
+    document.getElementById('as4').textContent=d.pinSuccess||0;
+    document.getElementById('as5').textContent=d.pinFailed||0;
+  }catch{
+    document.getElementById('as1').textContent=cnt('logged in');
+    document.getElementById('as2').textContent=cnt('email to');
+    document.getElementById('as3').textContent=cnt('tg:');
+    document.getElementById('as4').textContent=cnt('pin verified');
+    document.getElementById('as5').textContent=cnt('pin failed')+cnt('blocked');
+  }
+  document.getElementById('adminSub').textContent='VoiceMailAssist — '+new Date().toLocaleString();
+
+  const logEl=document.getElementById('adminLog');
+  if(!actLog.length)logEl.innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">No activity yet.</div>';
+  else logEl.innerHTML=actLog.slice(0,12).map(e=>{
+    const c=e.action.includes('✅')?'var(--green)':e.action.includes('🚫')||e.action.includes('❌')?'var(--red)':e.action.includes('logged')?'var(--cyan)':'var(--purple)';
+    return `<div class="log-item"><div class="log-dot" style="background:${c}"></div><div class="log-info"><div class="log-action">${e.action}</div><div class="log-user">👤 ${e.user}</div></div><div class="log-time">${e.time}</div></div>`;
+  }).join('');
+
+  const secEl=document.getElementById('adminSec');
+  const sec=actLog.filter(e=>{const a=e.action.toLowerCase();return a.includes('pin')||a.includes('login')||a.includes('block');}).slice(0,10);
+  secEl.innerHTML=sec.length?sec.map(e=>{const ico=e.action.includes('✅')||e.action.includes('logged')?'✅':e.action.includes('🚫')||e.action.includes('block')?'🚫':'⚠️';return `<div class="log-item"><div style="font-size:12px;flex-shrink:0">${ico}</div><div class="log-info"><div class="log-action">${e.action}</div><div class="log-user">👤 ${e.user} · ${e.time}</div></div></div>`;}).join(''):'<div style="padding:18px;text-align:center;color:var(--muted)">No events.</div>';
+
+  drawChart();loadAdminUsers();loadEmailReport();loadAnalytics();
+}
+
+async function loadAdminUsers(){
+  try{
+    const r=await fetch('/api/admin/users');const d=await r.json();
+    document.getElementById('adminUsers').innerHTML=(d.users||[]).map(u=>`<tr><td><span class="av">${(u.initial||u.email[0]).toUpperCase()}</span>${u.email}</td><td><span class="badge badge-user">User</span></td><td>Active</td><td><button class="del-btn" onclick="removeUser('${u.email}')">Remove</button></td></tr>`).join('');
+  }catch{document.getElementById('adminUsers').innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:12px">No users yet</td></tr>';}
+}
+
+async function removeUser(email){
+  if(!confirm(`Remove user ${email}?`))return;
+  try{await fetch('/api/admin/users/'+encodeURIComponent(email),{method:'DELETE'});loadAdminUsers();log('Admin removed: '+email);showToast('User removed','success');}
+  catch{showToast('Failed','error');}
+}
+
+async function loadEmailReport(){
+  try{
+    const r=await fetch('/api/admin/email-report');const d=await r.json();
+    document.getElementById('emailReport').innerHTML=(d.report||[]).map(u=>`<tr><td>${u.email.split('@')[0]}</td><td>${u.emailsSent}</td><td>${u.lastLogin==='Never'?'Never':new Date(u.lastLogin).toLocaleDateString()}</td><td>${u.hasPin?'✅':'❌'}</td></tr>`).join('');
+  }catch{}
+}
+
+async function loadAnalytics(){
+  try{const r=await fetch('/api/admin/analytics');const d=await r.json();drawAnalytics(d.byUser||{});}catch{}
+}
+
+function drawAnalytics(byUser){
+  const canvas=document.getElementById('analyticsChart');if(!canvas)return;
+  const ctx=canvas.getContext('2d');const W=canvas.offsetWidth||400,H=150;
+  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
+  const users=Object.keys(byUser).slice(0,5);
+  if(!users.length){ctx.fillStyle=isDark?'#64748b':'#94a3b8';ctx.font='12px DM Sans';ctx.textAlign='center';ctx.fillText('No data yet',W/2,H/2);return;}
+  const maxVal=Math.max(...users.map(u=>byUser[u].emailsSent||0),1);
+  const barW=Math.min(40,(W-40)/users.length-10);
+  users.forEach((u,i)=>{
+    const x=30+i*(barW+10);const val=byUser[u].emailsSent||0;const barH=(val/maxVal)*(H-40);
+    ctx.fillStyle='#7c3aed';ctx.fillRect(x,H-30-barH,barW,barH);
+    ctx.fillStyle=isDark?'#64748b':'#475569';ctx.font='9px DM Sans';ctx.textAlign='center';
+    ctx.fillText(u.split('@')[0].slice(0,6),x+barW/2,H-15);
+    ctx.fillStyle='#7c3aed';ctx.fillText(val,x+barW/2,H-35-barH);
+  });
+}
+
+function drawChart(){
+  const canvas=document.getElementById('lineChart');if(!canvas)return;
+  const ctx=canvas.getContext('2d');const W=canvas.offsetWidth||800,H=150;
+  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
+  const cats=[{l:'Email Read',kw:'read',c:'#7c3aed'},{l:'Sent',kw:'sent email',c:'#06b6d4'},{l:'TG',kw:'telegram',c:'#229ed9'},{l:'PIN OK',kw:'pin verified',c:'#10b981'},{l:'PIN Fail',kw:'pin failed',c:'#ef4444'},{l:'Logins',kw:'logged in',c:'#f59e0b'}];
+  const vals=cats.map(c=>cnt(c.kw));const maxVal=Math.max(...vals,1);
+  const pL=38,pR=16,pT=18,pB=28,gW=W-pL-pR,gH=H-pT-pB;
+  ctx.strokeStyle='rgba(30,35,64,.8)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pT+(gH/4)*i;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle='#64748b';ctx.font='9px sans-serif';ctx.fillText(Math.round(maxVal-(maxVal/4)*i),2,y+3);}
+  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='9px sans-serif';
+  const step=gW/(cats.length-1);
+  cats.forEach((c,i)=>ctx.fillText(c.l.split(' ')[0],pL+i*step,H-6));
+  const grad=ctx.createLinearGradient(0,pT,0,pT+gH);grad.addColorStop(0,'rgba(124,58,237,.3)');grad.addColorStop(1,'rgba(124,58,237,0)');
+  ctx.beginPath();vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.lineTo(pL+(cats.length-1)*step,pT+gH);ctx.lineTo(pL,pT+gH);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle='#7c3aed';ctx.lineWidth=2;
+  vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();
+  vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=cats[i].c;ctx.fill();ctx.strokeStyle=isDark?'#111428':'#f8f9fe';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=cats[i].c;ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText(v,x,y-7);});
+}
+
+async function checkSys(){
+  const el=document.getElementById('adminSys');
+  const svcs=[{name:'Gmail API',ico:'📬',key:'gmail'},{name:'Telegram Bot',ico:'✈️',key:'telegram'},{name:'Admin Dashboard',ico:'🛡️',key:'admin'}];
+  el.innerHTML=svcs.map(s=>`<div class="sys-row"><span style="font-size:13px">${s.ico}</span><div class="sys-name">${s.name}</div><span class="sys-badge" id="sysbadge_${s.key}" style="background:rgba(100,116,139,.12);color:#64748b">Checking…</span></div>`).join('');
+  try{const r=await fetch('/api/admin/status');const d=await r.json();setSB('gmail',d.gmail);setSB('telegram',d.telegram);}catch{setSB('gmail',false);setSB('telegram',false);}
+  setSB('admin',true);
+}
+function setSB(key,ok){const el=document.getElementById('sysbadge_'+key);if(!el)return;el.className=`sys-badge ${ok?'sys-up':'sys-down'}`;el.textContent=ok?'● Online':'● Offline';}
+
+async function exportLogs(){
+  try{
+    const r=await fetch('/api/admin/export-logs');const logs=await r.json();
+    const win=window.open('','_blank');
+    win.document.write(`<html><head><title>VoiceMailAssist Activity Log</title><style>body{font-family:sans-serif;padding:20px;}h1{color:#7c3aed;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;font-size:12px;}th{background:#7c3aed;color:white;}</style></head><body><h1>VoiceMailAssist Activity Log</h1><p>Exported: ${new Date().toLocaleString()}</p><table><thead><tr><th>Time</th><th>Date</th><th>User</th><th>Action</th></tr></thead><tbody>${logs.map(l=>`<tr><td>${l.time}</td><td>${l.date}</td><td>${l.user}</td><td>${l.action}</td></tr>`).join('')}</tbody></table></body></html>`);
+    win.document.close();win.print();
+    log('Admin exported logs as PDF');
+    speak(lang==='en'?'Logs exported. Print dialog opened.':lang==='ta'?'பதிவுகள் ஏற்றுமதி செய்யப்பட்டன.':'लॉग्स एक्सपोर्ट हुए।');
+  }catch{showToast('Export failed','error');}
+}
+
+// ════════════════════════════════════════
+//  SIGN OUT
+// ════════════════════════════════════════
+function signOut(){
+  log('Signed out');stopMic();
+  speak(L.signOut,()=>{
+    fetch('/auth/logout').catch(()=>{});
+    currentUser=null;userRole='user';userPIN='0413';
+    voiceStarted=false;micEnabled=false;
+    window.location.href='/app.html';
+  });
 }
 
 // ════════════════════════════════════════
@@ -1991,21 +2156,21 @@ function hideLoader(){document.getElementById('loader').classList.remove('show')
 function showToast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type||''}`;setTimeout(()=>el.classList.remove('show'),3000);}
 
 // ════════════════════════════════════════
-//  INIT
+//  INIT — deferred until window.onload
 // ════════════════════════════════════════
 function init(){
-  // Theme
+  // Theme (read saved, no heavy work)
   const savedTheme=localStorage.getItem('vma_theme')||'dark';
   isDark=savedTheme==='dark';
   document.body.className=isDark?'':'light';
   document.querySelectorAll('.theme-btn').forEach(b=>b.textContent=isDark?'🌙':'☀️');
 
-  // Language
+  // Language (read saved)
   lang=localStorage.getItem('vma_lang')||'en';
   L=STRINGS[lang];
   applyLang();
 
-  // Clear session
+  // Clear session state
   currentUser=null;userRole='user';userPIN='0413';
 
   // Check URL params (from OAuth redirect)
@@ -2016,39 +2181,43 @@ function init(){
   if(err){showToast('Authentication error. Please try again.','error');}
 
   if(step==='setpin'){
-    // User just came back from Google OAuth for signup — need to set PIN
     fetch('/api/auth/status').then(r=>r.json()).then(d=>{
       if(d.loggedIn&&d.user){
         currentUser=d.user;userRole=d.role||'user';
-        voiceStarted=true;
+        voiceStarted=true;micEnabled=true;
         document.getElementById('startVoiceBtn').style.display='none';
         goTo('pinSetup');
-        speak(lang==='en'?`Welcome ${d.user.name}! Your Google account is connected. Now set your 4-digit security PIN.`:lang==='ta'?`வரவேற்கிறோம் ${d.user.name}! உங்கள் 4 இலக்க பின்னை அமைக்கவும்.`:`स्वागत ${d.user.name}! अपना 4 अंकों का पिन सेट करें।`);
+        speak(lang==='en'
+          ?`Welcome ${d.user.name}! Your Google account is connected. Now set your 4-digit security PIN.`
+          :lang==='ta'?`வரவேற்கிறோம் ${d.user.name}! உங்கள் 4 இலக்க பின்னை அமைக்கவும்.`
+          :`स्वागत ${d.user.name}! अपना 4 अंकों का पिन सेट करें।`);
       }else goTo('home');
     }).catch(()=>goTo('home'));
-  }else if(step==='lang'){
-    // User logged in via Google OAuth — go to language selection
+  } else if(step==='lang'){
     fetch('/api/auth/status').then(r=>r.json()).then(d=>{
       if(d.loggedIn&&d.user){
         currentUser=d.user;userRole=d.role||'user';
-        voiceStarted=true;
+        voiceStarted=true;micEnabled=true;
         document.getElementById('startVoiceBtn').style.display='none';
-        // Load user's PIN
         fetch('/api/user/pin').then(r=>r.json()).then(pd=>{if(pd.pin)userPIN=String(pd.pin).trim();}).catch(()=>{});
         goTo('lang');
         speak(L.loginOk(d.user.name||d.user.email.split('@')[0]));
       }else goTo('home');
     }).catch(()=>goTo('home'));
-  }else{
+  } else {
+    // Normal home page — wait for user click before any audio
     currentPage='home';
-    const voices=speechSynthesis.getVoices();
-    if(!voices||!voices.length){
-      speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;};
+    // Pre-warm voices list silently (no audio)
+    if(window.speechSynthesis){
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged=()=>{window.speechSynthesis.onvoiceschanged=null;};
     }
   }
 }
 
 window.onload=init;
+
+// Admin auto-refresh (only when on admin page)
 setInterval(()=>{if(currentPage==='admin')renderAdmin();},8000);
 </script>
 </body>
