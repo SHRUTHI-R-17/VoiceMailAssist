@@ -1,18 +1,19 @@
 require('dotenv').config();
-const express       = require('express');
-const session       = require('express-session');
-const cors          = require('cors');
-const path          = require('path');
-const fs            = require('fs');
-const axios         = require('axios');
-const nodemailer    = require('nodemailer');
-const Imap          = require('node-imap');
+const express        = require('express');
+const session        = require('express-session');
+const cors           = require('cors');
+const path           = require('path');
+const fs             = require('fs');
+const axios          = require('axios');
+const nodemailer     = require('nodemailer');
+const Imap           = require('node-imap');
 const { simpleParser } = require('mailparser');
-const { google }    = require('googleapis');
-const bcrypt        = require('bcrypt');
+const { google }     = require('googleapis');
+const bcrypt         = require('bcrypt');
 const { TelegramClient } = require('telegram');
 const { StringSession }  = require('telegram/sessions');
 
+// ── CONFIG ──
 const config = {
   GOOGLE_CLIENT_ID:     process.env.GOOGLE_CLIENT_ID     || '',
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
@@ -24,32 +25,33 @@ const config = {
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile'
   ],
-  TELEGRAM_BOT_TOKEN:  process.env.TELEGRAM_BOT_TOKEN  || '',
-  TELEGRAM_CHAT_ID:    process.env.TELEGRAM_CHAT_ID    || '',
-  TELEGRAM_API_ID:     parseInt(process.env.TELEGRAM_API_ID) || 0,
-  TELEGRAM_API_HASH:   process.env.TELEGRAM_API_HASH   || '',
-  ANTHROPIC_API_KEY:   process.env.ANTHROPIC_API_KEY   || '',
-  SESSION_SECRET:      process.env.SESSION_SECRET       || 'vma-secret-2026',
-  PORT:                process.env.PORT                 || 3000
+  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
+  TELEGRAM_CHAT_ID:   process.env.TELEGRAM_CHAT_ID   || '',
+  TELEGRAM_API_ID:    parseInt(process.env.TELEGRAM_API_ID)  || 0,
+  TELEGRAM_API_HASH:  process.env.TELEGRAM_API_HASH          || '',
+  ANTHROPIC_API_KEY:  process.env.ANTHROPIC_API_KEY          || '',
+  SESSION_SECRET:     process.env.SESSION_SECRET             || 'vma-secret-2026',
+  PORT:               process.env.PORT                       || 3000
 };
 
-const SALT_ROUNDS  = 10;
-const ADMIN_EMAIL  = 'shruthir0413@gmail.com';
-const LOG_FILE     = path.join(__dirname, 'activity_log.json');
-const USERS_FILE   = path.join(__dirname, 'users.json');
-const TG_FILE      = path.join(__dirname, 'tg_sessions.json');
-const BACKUP_DIR   = path.join(__dirname, 'backups');
+const SALT_ROUNDS = 10;
+const ADMIN_EMAIL = 'shruthir0413@gmail.com';
+const LOG_FILE    = path.join(__dirname, 'activity_log.json');
+const USERS_FILE  = path.join(__dirname, 'users.json');
+const TG_FILE     = path.join(__dirname, 'tg_sessions.json');
+const BACKUP_DIR  = path.join(__dirname, 'backups');
 
 if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
 
-let actLog  = [];
-let users   = [];
+let actLog     = [];
+let users      = [];
 let tgSessions = {};
 
 try { actLog     = JSON.parse(fs.readFileSync(LOG_FILE,   'utf-8')); } catch {}
 try { users      = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8')); } catch {}
 try { tgSessions = JSON.parse(fs.readFileSync(TG_FILE,    'utf-8')); } catch {}
 
+// ── EXPRESS SETUP ──
 const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -63,10 +65,10 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
 
-// ── SESSION TIMEOUT ──
+// ── SESSION TIMEOUT MIDDLEWARE ──
 app.use((req, res, next) => {
   if (req.session && req.session.loggedIn) {
-    const now = Date.now();
+    const now  = Date.now();
     const last = req.session.lastActivity || now;
     if (now - last > 3600000) {
       req.session.destroy();
@@ -81,21 +83,21 @@ app.use((req, res, next) => {
 function doBackup() {
   try {
     const ts  = new Date().toISOString().replace(/[:.]/g, '-');
-    const dst = path.join(BACKUP_DIR, `activity_log_${ts}.json`);
+    const dst = path.join(BACKUP_DIR, `log_${ts}.json`);
     if (fs.existsSync(LOG_FILE)) fs.copyFileSync(LOG_FILE, dst);
     const files = fs.readdirSync(BACKUP_DIR).sort().reverse();
-    files.slice(10).forEach(f => fs.unlinkSync(path.join(BACKUP_DIR, f)));
+    files.slice(10).forEach(f => { try { fs.unlinkSync(path.join(BACKUP_DIR, f)); } catch {} });
   } catch (e) { console.error('Backup error:', e.message); }
 }
 setInterval(doBackup, 30 * 60 * 1000);
 
-// ── HELPERS ──
+// ── LOGGING ──
 function addLog(user, action) {
   const e = {
-    time: new Date().toLocaleTimeString(),
-    date: new Date().toLocaleDateString(),
+    time:      new Date().toLocaleTimeString(),
+    date:      new Date().toLocaleDateString(),
     timestamp: new Date().toISOString(),
-    user: user || 'unknown',
+    user:      user || 'unknown',
     action
   };
   actLog.unshift(e);
@@ -104,14 +106,10 @@ function addLog(user, action) {
   console.log(`📋 [${e.time}] ${e.user}: ${action}`);
 }
 
-function saveUsers() {
-  try { fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2)); } catch {}
-}
+function saveUsers()     { try { fs.writeFileSync(USERS_FILE, JSON.stringify(users,      null, 2)); } catch {} }
+function saveTgSessions(){ try { fs.writeFileSync(TG_FILE,    JSON.stringify(tgSessions, null, 2)); } catch {} }
 
-function saveTgSessions() {
-  try { fs.writeFileSync(TG_FILE, JSON.stringify(tgSessions, null, 2)); } catch {}
-}
-
+// ── NODEMAILER CACHE ──
 const transporterCache = {};
 function getTransporter(user, pass) {
   if (!transporterCache[user]) {
@@ -126,6 +124,7 @@ function getTransporter(user, pass) {
 }
 
 // ── ANTHROPIC AI ──
+// FIX: use correct model name claude-haiku-4-5-20251001
 async function callClaude(prompt, maxTokens = 300, imageBase64 = null) {
   if (!config.ANTHROPIC_API_KEY) return null;
   try {
@@ -134,47 +133,45 @@ async function callClaude(prompt, maxTokens = 300, imageBase64 = null) {
           { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 } },
           { type: 'text', text: prompt }
         ]
-      : [{ type: 'text', text: prompt }];
+      : prompt;
 
     const r = await axios.post('https://api.anthropic.com/v1/messages', {
-      model: 'claude-opus-4-5-20251001',
+      model:      'claude-haiku-4-5-20251001',
       max_tokens: maxTokens,
-      messages: [{ role: 'user', content }]
+      messages:   [{ role: 'user', content }]
     }, {
       headers: {
-        'x-api-key': config.ANTHROPIC_API_KEY,
+        'x-api-key':         config.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      }
+        'content-type':      'application/json'
+      },
+      timeout: 30000
     });
     return r.data.content[0].text.trim();
   } catch (e) {
-    console.error('Claude error:', e.message);
+    console.error('Claude error:', e.response?.data?.error?.message || e.message);
     return null;
   }
 }
 
 async function summarizeEmail(body, subject, sender) {
-  const prompt = `Summarize this email in exactly 2 short sentences. Write naturally for text to speech — no bullet points, no markdown, no special characters. Just plain conversational sentences.\nFrom: ${sender}\nSubject: ${subject}\nBody: ${(body || '').slice(0, 800)}\nReturn ONLY the 2 sentence summary, nothing else.`;
-  const result = await callClaude(prompt, 150);
-  return result || (body || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  const clean = (body || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 600);
+  const prompt = `Summarize this email in 2 short plain sentences for voice reading. No bullet points, no special characters.\nFrom: ${sender}\nSubject: ${subject}\nBody: ${clean}\nReturn ONLY the summary.`;
+  return (await callClaude(prompt, 100)) || clean.slice(0, 180);
 }
 
 async function getAISuggestions(body, sender, subject) {
-  const prompt = `Generate exactly 3 short professional email reply suggestions. Each must be one sentence only. Natural and conversational.\nFrom: ${sender}\nSubject: ${subject}\nEmail: ${(body || '').slice(0, 400)}\nReturn ONLY a JSON array like this: ["reply one","reply two","reply three"]`;
-  const result = await callClaude(prompt, 200);
+  const clean  = (body || '').replace(/<[^>]*>/g, '').trim().slice(0, 400);
+  const prompt = `Write 3 short one-sentence email reply suggestions.\nFrom: ${sender}\nSubject: ${subject}\nEmail: ${clean}\nReturn ONLY a JSON array: ["reply1","reply2","reply3"]`;
+  const result = await callClaude(prompt, 150);
   if (!result) return fallbackReplies(body);
-  try {
-    return JSON.parse(result.replace(/```json|```/g, '').trim());
-  } catch {
-    return fallbackReplies(body);
-  }
+  try   { return JSON.parse(result.replace(/```json|```/g, '').trim()); }
+  catch { return fallbackReplies(body); }
 }
 
 async function readImageInEmail(imageBase64) {
-  const prompt = 'Read all text visible in this image. If there is no text, describe what you see in one sentence. Return plain text only, no markdown.';
-  const result = await callClaude(prompt, 300, imageBase64);
-  return result || 'Image content could not be read.';
+  const prompt = 'Read all text in this image. If no text, describe it briefly. Plain text only.';
+  return (await callClaude(prompt, 200, imageBase64)) || 'Image could not be read.';
 }
 
 function fallbackReplies(body) {
@@ -186,42 +183,47 @@ function fallbackReplies(body) {
 }
 
 // ── GOOGLE OAUTH ──
-function getOAuth(redirectUri) {
+function getOAuth() {
   return new google.auth.OAuth2(
     config.GOOGLE_CLIENT_ID,
     config.GOOGLE_CLIENT_SECRET,
-    redirectUri || config.GOOGLE_REDIRECT_URI
+    config.GOOGLE_REDIRECT_URI
   );
 }
 
 app.get('/auth/google', (req, res) => {
   const type = req.query.type || 'login';
+  if (!config.GOOGLE_CLIENT_ID) {
+    return res.send('<h2 style="font-family:sans-serif;padding:40px">Google Client ID missing in .env file. Add GOOGLE_CLIENT_ID to your .env and restart the server.</h2>');
+  }
   req.session.oauthType = type;
-  if (!config.GOOGLE_CLIENT_ID) return res.send('<h2>Add Google credentials to .env</h2>');
   const oauth = getOAuth();
-  const url = oauth.generateAuthUrl({
+  const url   = oauth.generateAuthUrl({
     access_type: 'offline',
-    scope: config.GOOGLE_SCOPES,
-    prompt: 'consent'
+    scope:       config.GOOGLE_SCOPES,
+    prompt:      'consent'
   });
   res.redirect(url);
 });
 
 app.get('/auth/google/callback', async (req, res) => {
   const { code, error } = req.query;
-  if (error || !code) return res.redirect('/app.html?error=auth_failed');
+  if (error || !code) {
+    console.error('OAuth callback error:', error);
+    return res.redirect('/app.html?error=auth_failed&reason=' + encodeURIComponent(error || 'no_code'));
+  }
   try {
-    const oauth = getOAuth();
-    const { tokens } = await oauth.getToken(code);
+    const oauth          = getOAuth();
+    const { tokens }     = await oauth.getToken(code);
     oauth.setCredentials(tokens);
     const { data: profile } = await google.oauth2({ version: 'v2', auth: oauth }).userinfo.get();
-    const oauthType = req.session.oauthType || 'login';
+    const oauthType      = req.session.oauthType || 'login';
 
-    req.session.googleTokens = tokens;
-    req.session.googleUser   = { email: profile.email, name: profile.name };
-    req.session.loggedIn     = true;
-    req.session.userRole     = 'user';
-    req.session.lastActivity = Date.now();
+    req.session.googleTokens  = tokens;
+    req.session.googleUser    = { email: profile.email, name: profile.name };
+    req.session.loggedIn      = true;
+    req.session.userRole      = 'user';
+    req.session.lastActivity  = Date.now();
 
     let u = users.find(u => u.email === profile.email);
     if (!u) {
@@ -232,57 +234,12 @@ app.get('/auth/google/callback', async (req, res) => {
     saveUsers();
     addLog(profile.email, `User ${oauthType === 'signup' ? 'signed up' : 'logged in'} via Google OAuth`);
 
+    // If new user or no PIN set → go to PIN setup
     if (oauthType === 'signup' || !u.pin) return res.redirect('/app.html?step=setpin');
     return res.redirect('/app.html?step=lang');
   } catch (err) {
-    console.error('OAuth error:', err.message);
-    res.redirect('/app.html?error=auth_failed');
-  }
-});
-
-// ── PIN MANAGEMENT (bcrypt) ──
-app.post('/api/user/setpin', async (req, res) => {
-  if (!req.session.googleUser) return res.status(401).json({ error: 'Not logged in' });
-  const { pin } = req.body;
-  if (!pin || String(pin).length !== 4) return res.status(400).json({ error: 'PIN must be 4 digits' });
-  try {
-    const hashed = await bcrypt.hash(String(pin), SALT_ROUNDS);
-    const u = users.find(u => u.email === req.session.googleUser.email);
-    if (u) { u.pin = hashed; saveUsers(); }
-    req.session.userPIN = hashed;
-    addLog(req.session.googleUser.email, 'User set security PIN');
-    res.json({ success: true });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-app.post('/api/user/verifypin', async (req, res) => {
-  if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
-  const { pin } = req.body;
-  const email = req.session.googleUser?.email || req.session.gmailUser;
-  const u = users.find(u => u.email === email);
-  if (!u || !u.pin) return res.json({ valid: false });
-  try {
-    const match = await bcrypt.compare(String(pin), u.pin);
-    res.json({ valid: match });
-  } catch {
-    res.json({ valid: false });
-  }
-});
-
-app.get('/api/user/pin', (req, res) => {
-  if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
-  res.json({ hashed: true });
-});
-
-app.get('/api/auth/status', (req, res) => {
-  if (req.session.loggedIn) {
-    const email = req.session.googleUser?.email || req.session.gmailUser;
-    const name  = req.session.googleUser?.name  || email?.split('@')[0];
-    res.json({ loggedIn: true, user: { email, name }, role: req.session.userRole || 'user' });
-  } else {
-    res.json({ loggedIn: false, user: null });
+    console.error('OAuth callback error:', err.message);
+    return res.redirect('/app.html?error=auth_failed&reason=' + encodeURIComponent(err.message));
   }
 });
 
@@ -292,7 +249,68 @@ app.get('/auth/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/app.html'));
 });
 
-// ── ADMIN LOGIN ──
+// ── AUTH STATUS ──
+app.get('/api/auth/status', (req, res) => {
+  if (req.session.loggedIn) {
+    const email = req.session.googleUser?.email || req.session.gmailUser;
+    const name  = req.session.googleUser?.name  || email?.split('@')[0] || 'User';
+    res.json({ loggedIn: true, user: { email, name }, role: req.session.userRole || 'user' });
+  } else {
+    res.json({ loggedIn: false, user: null });
+  }
+});
+
+// ── PIN MANAGEMENT ──
+app.post('/api/user/setpin', async (req, res) => {
+  if (!req.session.googleUser && !req.session.gmailUser) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  const { pin } = req.body;
+  if (!pin || String(pin).length !== 4 || !/^\d{4}$/.test(String(pin))) {
+    return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
+  }
+  try {
+    const hashed = await bcrypt.hash(String(pin), SALT_ROUNDS);
+    const email  = req.session.googleUser?.email || req.session.gmailUser;
+    let u = users.find(u => u.email === email);
+    if (!u) {
+      u = { email, name: email.split('@')[0], pin: null, createdAt: new Date().toISOString(), emailsSent: 0 };
+      users.push(u);
+    }
+    u.pin = hashed;
+    saveUsers();
+    addLog(email, 'PIN set successfully');
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// FIX: Admin also needs to be able to verify PIN
+// Admin PIN is stored directly — admin uses App Password not bcrypt PIN
+app.post('/api/user/verifypin', async (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
+  const { pin } = req.body;
+  const email   = req.session.googleUser?.email || req.session.gmailUser;
+
+  // Admin uses a fixed PIN "0413" stored in session or env
+  if (req.session.userRole === 'admin') {
+    const adminPin = process.env.ADMIN_PIN || '0413';
+    return res.json({ valid: String(pin) === String(adminPin) });
+  }
+
+  const u = users.find(u => u.email === email);
+  if (!u || !u.pin) return res.json({ valid: false, error: 'No PIN set for this user' });
+
+  try {
+    const match = await bcrypt.compare(String(pin), u.pin);
+    res.json({ valid: match });
+  } catch {
+    res.json({ valid: false });
+  }
+});
+
+// ── ADMIN LOGIN via IMAP ──
 function verifyIMAP(user, pass) {
   return new Promise((resolve, reject) => {
     const imap = new Imap({
@@ -311,10 +329,11 @@ app.post('/api/admin/login', async (req, res) => {
   let { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ success: false, error: 'Email and password required' });
   email    = email.trim().toLowerCase();
-  password = password.replace(/\s/g, '');
+  password = password.trim().replace(/\s/g, '');
+
   if (email !== ADMIN_EMAIL) {
-    addLog(email, '❌ Admin login rejected — unauthorized email');
-    return res.status(403).json({ success: false, error: 'Access denied.' });
+    addLog(email, '❌ Admin login rejected — wrong email');
+    return res.status(403).json({ success: false, error: 'Access denied. Only the registered admin can login here.' });
   }
   try {
     await verifyIMAP(email, password);
@@ -324,13 +343,25 @@ app.post('/api/admin/login', async (req, res) => {
     req.session.userRole      = 'admin';
     req.session.lastActivity  = Date.now();
     addLog(email, 'Admin logged in via IMAP');
+
+    // Ensure admin exists in users list
+    let u = users.find(u => u.email === email);
+    if (!u) {
+      u = { email, name: 'Admin', pin: null, createdAt: new Date().toISOString(), emailsSent: 0, lastLogin: null };
+      users.push(u);
+    }
+    u.lastLogin = new Date().toISOString();
+    saveUsers();
+
     res.json({ success: true, email, name: 'Admin', role: 'admin' });
   } catch (err) {
-    res.status(401).json({ success: false, error: 'Login failed. Check your App Password.' });
+    const msg = err.message?.toLowerCase().includes('auth') ? 'Wrong App Password.' : err.message;
+    addLog(email, '❌ Admin login failed: ' + msg);
+    res.status(401).json({ success: false, error: 'Login failed. ' + msg + ' Get App Password from myaccount.google.com/apppasswords' });
   }
 });
 
-// ── GMAIL CLIENT ──
+// ── GMAIL CLIENT FACTORY ──
 function getGmailClient(req) {
   if (req.session.googleTokens) {
     const oauth = getOAuth();
@@ -348,12 +379,11 @@ function decB64(s) {
 }
 
 function getBodyAndImages(payload) {
-  let text = '';
-  let images = [];
+  let text = '', images = [];
   function walk(p) {
     if (!p) return;
-    if (p.mimeType === 'text/plain' && p.body?.data) text += decB64(p.body.data);
-    if (p.mimeType?.startsWith('image/') && p.body?.data) images.push(p.body.data);
+    if (p.mimeType === 'text/plain' && p.body?.data)          text += decB64(p.body.data);
+    if (p.mimeType?.startsWith('image/') && p.body?.data)     images.push(p.body.data);
     if (p.parts) p.parts.forEach(walk);
   }
   walk(payload);
@@ -364,26 +394,17 @@ function hdr(headers, name) {
   return (headers.find(h => h.name.toLowerCase() === name.toLowerCase()) || {}).value || '';
 }
 
-// ── FETCH LATEST EMAIL (single email with AI summary + image reading) ──
+// ── FETCH LATEST EMAIL ──
 app.get('/api/gmail/latest', async (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in', sessionExpired: true });
   const tab    = req.query.tab || 'inbox';
   const client = getGmailClient(req);
-  if (!client) return res.status(401).json({ error: 'No Gmail connection' });
+  if (!client) return res.status(401).json({ error: 'No Gmail connection', sessionExpired: true });
 
   try {
-    let email = null;
-
     if (client.type === 'oauth') {
-      const labelMap = {
-        inbox:      ['INBOX'],
-        social:     ['INBOX', 'CATEGORY_SOCIAL'],
-        promotions: ['INBOX', 'CATEGORY_PROMOTIONS']
-      };
-      const list = await client.gmail.users.messages.list({
-        userId: 'me', maxResults: 1,
-        labelIds: labelMap[tab] || ['INBOX']
-      });
+      const labelMap = { inbox: ['INBOX'], social: ['INBOX','CATEGORY_SOCIAL'], promotions: ['INBOX','CATEGORY_PROMOTIONS'] };
+      const list = await client.gmail.users.messages.list({ userId: 'me', maxResults: 1, labelIds: labelMap[tab] || ['INBOX'] });
       if (!list.data.messages?.length) return res.json({ email: null });
 
       const msg  = await client.gmail.users.messages.get({ userId: 'me', id: list.data.messages[0].id, format: 'full' });
@@ -391,63 +412,51 @@ app.get('/api/gmail/latest', async (req, res) => {
       const { text, images } = getBodyAndImages(msg.data.payload);
 
       let imageText = '';
-      if (images.length > 0) {
-        imageText = await readImageInEmail(images[0]);
-      }
+      if (images.length > 0) imageText = await readImageInEmail(images[0]);
 
-      const fullBody = text + (imageText ? '\n\nImage content: ' + imageText : '');
+      const fullBody = text + (imageText ? ' Image says: ' + imageText : '');
       const fromText = hdr(hdrs, 'From');
       const subject  = hdr(hdrs, 'Subject');
-      const summary  = await summarizeEmail(fullBody, subject, fromText);
-      const replies  = await getAISuggestions(fullBody, fromText, subject);
+      const [summary, replies] = await Promise.all([
+        summarizeEmail(fullBody, subject, fromText),
+        getAISuggestions(fullBody, fromText, subject)
+      ]);
 
-      email = {
-        id:       msg.data.id,
-        from:     fromText,
-        subject,
-        date:     hdr(hdrs, 'Date') ? new Date(hdr(hdrs, 'Date')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-        summary,
-        replies,
-        hasImage: images.length > 0,
-        imageText,
-        read:     !(msg.data.labelIds || []).includes('UNREAD')
-      };
+      // Mark as read
+      try { await client.gmail.users.messages.modify({ userId: 'me', id: msg.data.id, requestBody: { removeLabelIds: ['UNREAD'] } }); } catch {}
 
-      await client.gmail.users.messages.modify({ userId: 'me', id: msg.data.id, requestBody: { removeLabelIds: ['UNREAD'] } });
+      const email = { id: msg.data.id, from: fromText, subject, date: hdr(hdrs, 'Date') ? new Date(hdr(hdrs, 'Date')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '', summary, replies, hasImage: images.length > 0, imageText, read: true };
+      addLog(req.session.googleUser?.email || req.session.gmailUser, `Read: ${subject}`);
+      return res.json({ email });
     } else {
       const emails = await fetchIMAP(client.user, client.pass, tab, 1);
       if (!emails.length) return res.json({ email: null });
-      const e       = emails[0];
-      const summary = await summarizeEmail(e.body, e.subject, e.from);
-      const replies = await getAISuggestions(e.body, e.from, e.subject);
-      email = { ...e, summary, replies, hasImage: false, imageText: '' };
+      const e = emails[0];
+      const [summary, replies] = await Promise.all([
+        summarizeEmail(e.body, e.subject, e.from),
+        getAISuggestions(e.body, e.from, e.subject)
+      ]);
+      addLog(client.user, `Read: ${e.subject}`);
+      return res.json({ email: { ...e, summary, replies, hasImage: false, imageText: '' } });
     }
-
-    const userEmail = req.session.googleUser?.email || req.session.gmailUser;
-    addLog(userEmail, `Read: ${email.subject}`);
-    res.json({ email });
   } catch (err) {
     console.error('Latest email error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── FETCH EMAILS (list) ──
+// ── FETCH EMAIL LIST ──
 app.get('/api/gmail/emails', async (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in', emails: [] });
   const tab    = req.query.tab || 'inbox';
-  const limit  = parseInt(req.query.maxResults) || 5;
+  const limit  = Math.min(parseInt(req.query.maxResults) || 5, 10);
   const client = getGmailClient(req);
   if (!client) return res.status(401).json({ error: 'No Gmail connection', emails: [] });
 
   try {
     let emails = [];
     if (client.type === 'oauth') {
-      const labelMap = {
-        inbox:      ['INBOX'],
-        social:     ['INBOX', 'CATEGORY_SOCIAL'],
-        promotions: ['INBOX', 'CATEGORY_PROMOTIONS']
-      };
+      const labelMap = { inbox: ['INBOX'], social: ['INBOX','CATEGORY_SOCIAL'], promotions: ['INBOX','CATEGORY_PROMOTIONS'] };
       const list = await client.gmail.users.messages.list({ userId: 'me', maxResults: limit, labelIds: labelMap[tab] || ['INBOX'] });
       const msgs = list.data.messages || [];
       emails = await Promise.all(msgs.map(async ({ id }) => {
@@ -455,27 +464,23 @@ app.get('/api/gmail/emails', async (req, res) => {
         const hdrs = msg.data.payload.headers;
         const { text } = getBodyAndImages(msg.data.payload);
         return {
-          id,
-          from:    hdr(hdrs, 'From'),
-          subject: hdr(hdrs, 'Subject'),
+          id, from: hdr(hdrs, 'From'), subject: hdr(hdrs, 'Subject'),
           date:    hdr(hdrs, 'Date') ? new Date(hdr(hdrs, 'Date')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-          snippet: msg.data.snippet || '',
-          body:    text,
+          snippet: msg.data.snippet || '', body: text,
           read:    !(msg.data.labelIds || []).includes('UNREAD')
         };
       }));
     } else {
       emails = await fetchIMAP(client.user, client.pass, tab, limit);
     }
-    const userEmail = req.session.googleUser?.email || req.session.gmailUser;
-    addLog(userEmail, `Fetched ${emails.length} emails (${tab})`);
+    addLog(req.session.googleUser?.email || req.session.gmailUser, `Fetched ${emails.length} emails (${tab})`);
     res.json({ emails });
   } catch (err) {
     res.status(500).json({ error: err.message, emails: [] });
   }
 });
 
-// ── COUNT EMAILS (all sections) ──
+// ── COUNT EMAILS (all 3 sections) ──
 app.get('/api/gmail/count', async (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
   const client = getGmailClient(req);
@@ -483,21 +488,16 @@ app.get('/api/gmail/count', async (req, res) => {
 
   try {
     if (client.type === 'oauth') {
-      const sections = ['inbox', 'social', 'promotions'];
-      const labelMap = {
-        inbox:      ['INBOX'],
-        social:     ['INBOX', 'CATEGORY_SOCIAL'],
-        promotions: ['INBOX', 'CATEGORY_PROMOTIONS']
-      };
-      const results = {};
-      await Promise.all(sections.map(async tab => {
+      const labelMap = { inbox: ['INBOX'], social: ['INBOX','CATEGORY_SOCIAL'], promotions: ['INBOX','CATEGORY_PROMOTIONS'] };
+      const results  = {};
+      await Promise.all(['inbox','social','promotions'].map(async tab => {
         const [all, unread] = await Promise.all([
-          client.gmail.users.messages.list({ userId: 'me', labelIds: labelMap[tab], maxResults: 1 }),
-          client.gmail.users.messages.list({ userId: 'me', labelIds: [...labelMap[tab], 'UNREAD'], maxResults: 1 })
+          client.gmail.users.messages.list({ userId: 'me', labelIds: labelMap[tab],                     maxResults: 1 }),
+          client.gmail.users.messages.list({ userId: 'me', labelIds: [...labelMap[tab], 'UNREAD'],      maxResults: 1 })
         ]);
-        const total    = all.data.resultSizeEstimate    || 0;
-        const unreadN  = unread.data.resultSizeEstimate || 0;
-        results[tab] = { total, unread: unreadN, read: Math.max(0, total - unreadN) };
+        const total   = all.data.resultSizeEstimate    || 0;
+        const unreadN = unread.data.resultSizeEstimate || 0;
+        results[tab]  = { total, unread: unreadN, read: Math.max(0, total - unreadN) };
       }));
       res.json({ sections: results });
     } else {
@@ -514,17 +514,20 @@ app.get('/api/gmail/count', async (req, res) => {
 app.post('/api/gmail/cleartrash', async (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
   const client = getGmailClient(req);
-  if (!client || client.type !== 'oauth') return res.status(400).json({ error: 'OAuth required for trash clear' });
+  if (!client) return res.status(400).json({ error: 'No Gmail connection' });
 
   try {
-    const list = await client.gmail.users.messages.list({ userId: 'me', labelIds: ['TRASH'], maxResults: 500 });
-    const msgs = list.data.messages || [];
-    if (!msgs.length) return res.json({ success: true, cleared: 0 });
-    const ids = msgs.map(m => m.id);
-    await client.gmail.users.messages.batchDelete({ userId: 'me', requestBody: { ids } });
-    const email = req.session.googleUser?.email;
-    addLog(email, `🗑️ Cleared trash: ${ids.length} emails deleted`);
-    res.json({ success: true, cleared: ids.length });
+    if (client.type === 'oauth') {
+      const list = await client.gmail.users.messages.list({ userId: 'me', labelIds: ['TRASH'], maxResults: 500 });
+      const msgs = list.data.messages || [];
+      if (!msgs.length) return res.json({ success: true, cleared: 0 });
+      await client.gmail.users.messages.batchDelete({ userId: 'me', requestBody: { ids: msgs.map(m => m.id) } });
+      addLog(req.session.googleUser?.email, `🗑️ Cleared ${msgs.length} trash emails`);
+      return res.json({ success: true, cleared: msgs.length });
+    } else {
+      // IMAP: move all INBOX+Trash to deleted
+      return res.json({ success: false, error: 'Clear trash requires OAuth login, not admin IMAP login.' });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -534,37 +537,36 @@ app.post('/api/gmail/cleartrash', async (req, res) => {
 app.post('/api/gmail/send', async (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
   const { to, subject, body } = req.body;
-  if (!to || !subject || !body) return res.status(400).json({ error: 'Missing fields' });
-  const email = req.session.googleUser?.email || req.session.gmailUser;
+  if (!to || !subject || !body) return res.status(400).json({ error: 'Missing to, subject, or body' });
+  const fromEmail = req.session.googleUser?.email || req.session.gmailUser;
   try {
     const client = getGmailClient(req);
     if (client?.type === 'oauth') {
-      const raw = Buffer.from(
-        [`From:${email}`, `To:${to}`, `Subject:${subject}`, 'MIME-Version:1.0', 'Content-Type:text/plain;charset=utf-8', '', body].join('\r\n')
-      ).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      const raw = Buffer.from([`From:${fromEmail}`,`To:${to}`,`Subject:${subject}`,'MIME-Version:1.0','Content-Type:text/plain;charset=utf-8','',body].join('\r\n'))
+        .toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
       await client.gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
     } else {
       const t = getTransporter(req.session.gmailUser, req.session.gmailPassword);
       await Promise.race([
-        t.sendMail({ from: email, to, subject, text: body }),
+        t.sendMail({ from: fromEmail, to, subject, text: body }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Send timeout')), 15000))
       ]);
     }
-    const u = users.find(u => u.email === email);
+    const u = users.find(u => u.email === fromEmail);
     if (u) { u.emailsSent = (u.emailsSent || 0) + 1; saveUsers(); }
-    addLog(email, `✅ Sent email to: ${to} — ${subject}`);
+    addLog(fromEmail, `✅ Sent email to: ${to} — ${subject}`);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── IMAP FETCH HELPER ──
+// ── IMAP HELPERS ──
 function fetchIMAP(user, pass, tab, limit) {
   return new Promise((resolve, reject) => {
     const folderMap = { inbox: 'INBOX', social: '[Gmail]/Social', promotions: '[Gmail]/Promotions' };
-    const folder = folderMap[tab] || 'INBOX';
-    const imap = new Imap({ user, password: pass, host: 'imap.gmail.com', port: 993, tls: true, tlsOptions: { rejectUnauthorized: false }, connTimeout: 20000, authTimeout: 15000 });
+    const folder    = folderMap[tab] || 'INBOX';
+    const imap      = new Imap({ user, password: pass, host: 'imap.gmail.com', port: 993, tls: true, tlsOptions: { rejectUnauthorized: false }, connTimeout: 20000, authTimeout: 15000 });
     imap.once('error', reject);
     imap.once('ready', () => {
       imap.openBox(folder, true, (err, box) => {
@@ -584,20 +586,20 @@ function doImapFetch(imap, box, limit, resolve, reject) {
   const total = box.messages.total;
   if (total === 0) { imap.end(); return resolve([]); }
   const start = Math.max(1, total - limit + 1);
-  const f = imap.seq.fetch(`${start}:${total}`, { bodies: ['HEADER', 'TEXT'], markSeen: false });
-  const msgs = [];
-  f.on('message', (msg, seqno) => {
-    const m = { seqno, header: '', body: '', attrs: {} };
+  const f     = imap.seq.fetch(`${start}:${total}`, { bodies: ['HEADER','TEXT'], markSeen: false });
+  const msgs  = [];
+  f.on('message', (msg) => {
+    const m = { header: '', body: '', attrs: {} };
     msg.on('body', (stream, info) => {
       let buf = '';
-      stream.on('data', d => buf += d.toString('utf8'));
-      stream.once('end', () => { if (info.which === 'HEADER') m.header = buf; else m.body += buf; });
+      stream.on('data',    d  => buf += d.toString('utf8'));
+      stream.once('end',   () => { if (info.which === 'HEADER') m.header = buf; else m.body += buf; });
     });
     msg.once('attributes', a => m.attrs = a);
-    msg.once('end', () => msgs.push(m));
+    msg.once('end',        () => msgs.push(m));
   });
   f.once('error', err => { imap.end(); reject(err); });
-  f.once('end', () => {
+  f.once('end',   () => {
     imap.end();
     Promise.all(msgs.map(async m => {
       try {
@@ -605,59 +607,48 @@ function doImapFetch(imap, box, limit, resolve, reject) {
         const flags  = m.attrs.flags || [];
         const isRead = flags.some(f => f === '\\Seen' || f.toLowerCase() === '\\seen');
         const body   = (parsed.text || '').replace(/\s+/g, ' ').trim().slice(0, 400);
-        return { id: String(m.attrs.uid || m.seqno), from: parsed.from?.text || 'Unknown', subject: parsed.subject || '(No Subject)', date: parsed.date ? new Date(parsed.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '', body, snippet: body.slice(0, 100), read: isRead };
+        return { id: String(m.attrs.uid || m.seqno || Date.now()), from: parsed.from?.text || 'Unknown', subject: parsed.subject || '(No Subject)', date: parsed.date ? new Date(parsed.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '', body, snippet: body.slice(0, 100), read: isRead };
       } catch { return null; }
     })).then(r => resolve(r.filter(Boolean).reverse())).catch(reject);
   });
 }
 
-// ── AI SUGGESTIONS ENDPOINT ──
+// ── AI SUGGEST ENDPOINT ──
 app.post('/api/ai/suggest', async (req, res) => {
   const { emailContent, sender, subject } = req.body;
-  const suggestions = await getAISuggestions(emailContent, sender, subject);
-  res.json({ suggestions });
+  res.json({ suggestions: await getAISuggestions(emailContent, sender, subject) });
 });
 
 // ── AI BOT CHAT ──
 app.post('/api/ai/chat', async (req, res) => {
   const { message, history } = req.body;
   if (!message) return res.status(400).json({ error: 'No message' });
-  if (!config.ANTHROPIC_API_KEY) return res.json({ reply: 'AI features require an Anthropic API key in your .env file.' });
-
+  if (!config.ANTHROPIC_API_KEY) return res.json({ reply: 'AI not configured. Add ANTHROPIC_API_KEY to your .env file.' });
   try {
-    const messages = [
-      ...(history || []).slice(-10),
-      { role: 'user', content: message }
-    ];
+    const messages = [...(history || []).slice(-8), { role: 'user', content: message }];
     const r = await axios.post('https://api.anthropic.com/v1/messages', {
-      model: 'claude-opus-4-5-20251001',
-      max_tokens: 500,
-      system: 'You are a helpful assistant inside VoiceMailAssist, a voice-first email and messaging app. Keep answers short and clear — they will be spoken aloud.',
+      model:      'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      system:     'You are a helpful AI assistant inside VoiceMailAssist. Keep answers short and clear — 2 sentences max — because they will be read aloud.',
       messages
-    }, {
-      headers: {
-        'x-api-key': config.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      }
-    });
+    }, { headers: { 'x-api-key': config.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' }, timeout: 30000 });
     res.json({ reply: r.data.content[0].text.trim() });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ reply: 'Sorry, I could not process that right now.' });
   }
 });
 
-// ════════════════════════════════════════
-//  TELEGRAM MTProto (GramJS) — Real Personal Chats
-// ════════════════════════════════════════
-const tgClients = {};
-const tgCodeCallbacks = {};
+// ── TELEGRAM MTProto ──
+const tgClients      = {};
+const tgCodeRequests = {};
 
 app.post('/api/telegram/mtproto/start', async (req, res) => {
   const { phone } = req.body;
-  if (!phone) return res.status(400).json({ error: 'Phone number required' });
+  if (!phone)                    return res.status(400).json({ error: 'Phone number required' });
+  if (!config.TELEGRAM_API_ID)  return res.status(400).json({ error: 'TELEGRAM_API_ID not set in .env' });
+  if (!config.TELEGRAM_API_HASH) return res.status(400).json({ error: 'TELEGRAM_API_HASH not set in .env' });
 
-  const sessionKey = phone.replace(/\D/g, '');
+  const sessionKey   = phone.replace(/\D/g, '');
   const savedSession = tgSessions[sessionKey] || '';
 
   try {
@@ -665,29 +656,26 @@ app.post('/api/telegram/mtproto/start', async (req, res) => {
       new StringSession(savedSession),
       config.TELEGRAM_API_ID,
       config.TELEGRAM_API_HASH,
-      { connectionRetries: 3 }
+      { connectionRetries: 5, useWSS: false }
     );
-
     await client.connect();
 
     if (await client.isUserAuthorized()) {
-      tgClients[sessionKey] = client;
-      req.session.tgPhone   = phone;
-      req.session.tgSession = sessionKey;
-      addLog(req.session.googleUser?.email || 'user', `Telegram MTProto connected: ${phone}`);
+      tgClients[sessionKey]      = client;
+      req.session.tgSession      = sessionKey;
+      req.session.tgPhone        = phone;
+      addLog(req.session.googleUser?.email || 'user', `Telegram MTProto reconnected: ${phone}`);
       return res.json({ success: true, needCode: false });
     }
 
-    await client.sendCode({ apiId: config.TELEGRAM_API_ID, apiHash: config.TELEGRAM_API_HASH }, phone);
-
+    const result = await client.sendCode({ apiId: config.TELEGRAM_API_ID, apiHash: config.TELEGRAM_API_HASH }, phone);
     tgClients[sessionKey]      = client;
-    tgCodeCallbacks[sessionKey] = null;
-    req.session.tgPhone        = phone;
+    tgCodeRequests[sessionKey] = result.phoneCodeHash;
     req.session.tgSession      = sessionKey;
-
+    req.session.tgPhone        = phone;
     res.json({ success: true, needCode: true });
   } catch (err) {
-    console.error('TG MTProto start error:', err.message);
+    console.error('TG start error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -696,44 +684,49 @@ app.post('/api/telegram/mtproto/verify', async (req, res) => {
   const { code, phone, password } = req.body;
   const sessionKey = (phone || req.session.tgPhone || '').replace(/\D/g, '');
   const client     = tgClients[sessionKey];
-  if (!client) return res.status(400).json({ error: 'No active session. Please start again.' });
+  const codeHash   = tgCodeRequests[sessionKey];
+  if (!client) return res.status(400).json({ error: 'No session found. Start again.' });
 
   try {
-    await client.signIn(
-      { apiId: config.TELEGRAM_API_ID, apiHash: config.TELEGRAM_API_HASH },
-      { phoneNumber: phone || req.session.tgPhone, phoneCode: async () => code, password: async () => password || '' }
-    );
-
-    const session = client.session.save();
+    await client.invoke(new (require('telegram/tl').Api.auth.SignIn)({
+      phoneNumber:   phone || req.session.tgPhone,
+      phoneCodeHash: codeHash || '',
+      phoneCode:     code
+    }));
+    const session          = client.session.save();
     tgSessions[sessionKey] = session;
     saveTgSessions();
-    req.session.tgSession = sessionKey;
+    req.session.tgSession  = sessionKey;
     addLog(req.session.googleUser?.email || 'user', `Telegram verified: ${phone}`);
     res.json({ success: true });
   } catch (err) {
+    // Handle 2FA
+    if (err.message?.includes('SESSION_PASSWORD_NEEDED') || err.message?.includes('2FA')) {
+      if (!password) return res.json({ success: false, need2FA: true });
+      try {
+        await client.signInWithPassword({ apiId: config.TELEGRAM_API_ID, apiHash: config.TELEGRAM_API_HASH }, { password: async () => password });
+        const session          = client.session.save();
+        tgSessions[sessionKey] = session;
+        saveTgSessions();
+        req.session.tgSession  = sessionKey;
+        return res.json({ success: true });
+      } catch (e2) {
+        return res.status(400).json({ error: '2FA password wrong: ' + e2.message });
+      }
+    }
     console.error('TG verify error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 
 app.get('/api/telegram/mtproto/chats', async (req, res) => {
   const sessionKey = req.session.tgSession;
   const client     = tgClients[sessionKey];
-  if (!client) return res.status(401).json({ error: 'Not connected to Telegram' });
-
+  if (!client) return res.status(401).json({ error: 'Not connected to Telegram. Please login first.' });
   try {
     const dialogs = await client.getDialogs({ limit: 30 });
-    const chats   = dialogs.map(d => ({
-      id:       String(d.id),
-      name:     d.title || d.name || 'Unknown',
-      unread:   d.unreadCount || 0,
-      lastMsg:  d.message?.message || '',
-      lastDate: d.message?.date ? new Date(d.message.date * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
-    }));
-    res.json({ chats });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    res.json({ chats: dialogs.map(d => ({ id: String(d.id), name: d.title || d.name || 'Unknown', unread: d.unreadCount || 0, lastMsg: d.message?.message || '', lastDate: d.message?.date ? new Date(d.message.date * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '' })) });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.get('/api/telegram/mtproto/messages', async (req, res) => {
@@ -741,67 +734,29 @@ app.get('/api/telegram/mtproto/messages', async (req, res) => {
   const client     = tgClients[sessionKey];
   const { chatId } = req.query;
   if (!client) return res.status(401).json({ error: 'Not connected' });
-
   try {
     const messages = await client.getMessages(chatId, { limit: 30 });
     const me       = await client.getMe();
-    const formatted = messages.reverse().map(m => ({
-      id:     m.id,
-      text:   m.message || '',
-      fromMe: String(m.fromId?.userId) === String(me.id),
-      date:   m.date ? new Date(m.date * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
-    }));
-    res.json({ messages: formatted });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/telegram/mtproto/send', async (req, res) => {
-  const sessionKey = req.session.tgSession;
-  const client     = tgClients[sessionKey];
-  const { chatId, message } = req.body;
-  if (!client) return res.status(401).json({ error: 'Not connected' });
-
-  try {
-    await client.sendMessage(chatId, { message });
-    addLog(req.session.googleUser?.email || 'user', `✅ TG MTProto sent to: ${chatId}`);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Bot API fallback for sending
-const tgBase = () => `https://api.telegram.org/bot${config.TELEGRAM_BOT_TOKEN}`;
-
-app.get('/api/telegram/chats', async (_, res) => {
-  if (!config.TELEGRAM_BOT_TOKEN) return res.json({ chats: [] });
-  try {
-    const r = await axios.get(`${tgBase()}/getUpdates?limit=100`);
-    const map = {};
-    (r.data.result || []).forEach(u => {
-      if (!u.message) return;
-      const c = u.message.chat, k = String(c.id);
-      if (!map[k]) map[k] = { id: c.id, name: c.first_name ? `${c.first_name} ${c.last_name || ''}`.trim() : c.title || 'Unknown', messages: [] };
-      map[k].messages.push({ text: u.message.text || '[Media]', fromMe: false, date: new Date(u.message.date * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
-    });
-    res.json({ chats: Object.values(map) });
+    res.json({ messages: messages.reverse().map(m => ({ id: m.id, text: m.message || '', fromMe: String(m.fromId?.userId) === String(me.id), date: m.date ? new Date(m.date * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '' })) });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/telegram/send', async (req, res) => {
+app.post('/api/telegram/mtproto/send', async (req, res) => {
+  const sessionKey      = req.session.tgSession;
+  const client          = tgClients[sessionKey];
   const { chatId, message } = req.body;
+  if (!client)  return res.status(401).json({ error: 'Not connected' });
+  if (!message) return res.status(400).json({ error: 'No message' });
   try {
-    await axios.post(`${tgBase()}/sendMessage`, { chat_id: chatId || config.TELEGRAM_CHAT_ID, text: message });
-    addLog('user', '✅ Telegram bot message sent');
+    await client.sendMessage(chatId, { message });
+    addLog(req.session.googleUser?.email || req.session.gmailUser || 'user', `✅ TG sent to: ${chatId}`);
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ── ADMIN ROUTES ──
 function requireAdmin(req, res, next) {
-  if (req.session.userRole !== 'admin') return res.status(403).json({ error: 'Admin only' });
+  if (req.session.userRole !== 'admin') return res.status(403).json({ error: 'Admin access required' });
   next();
 }
 
@@ -813,53 +768,47 @@ app.post('/api/admin/log', (req, res) => {
 
 app.get('/api/admin/stats', requireAdmin, (_, res) => {
   const c = kw => actLog.filter(e => e.action.toLowerCase().includes(kw)).length;
-  res.json({ totalUsers: users.length, emailsSent: c('sent email'), tgMessages: c('telegram'), pinSuccess: c('pin verified'), pinFailed: c('pin failed') + c('blocked'), totalLogins: c('logged in'), totalActivities: actLog.length });
+  res.json({ totalUsers: users.length, emailsSent: c('sent email'), tgMessages: c('tg sent'), pinSuccess: c('pin set') + c('pin verified'), pinFailed: c('pin failed') + c('blocked'), totalLogins: c('logged in'), totalActivities: actLog.length });
 });
 
-app.get('/api/admin/logs',     requireAdmin, (_, res) => res.json({ logs: actLog.slice(0, 50), total: actLog.length }));
-app.get('/api/admin/users',    requireAdmin, (_, res) => res.json({ users: users.map(u => ({ ...u, pin: u.pin ? '••••' : null })) }));
-app.get('/api/admin/analytics', requireAdmin, (_, res) => {
+app.get('/api/admin/logs',          requireAdmin, (_, res) => res.json({ logs: actLog.slice(0, 50), total: actLog.length }));
+app.get('/api/admin/users',         requireAdmin, (_, res) => res.json({ users: users.map(u => ({ email: u.email, name: u.name, emailsSent: u.emailsSent || 0, lastLogin: u.lastLogin || 'Never', hasPin: !!u.pin, createdAt: u.createdAt || 'Unknown' })) }));
+app.get('/api/admin/export-logs',   requireAdmin, (_, res) => res.json(actLog));
+app.get('/api/admin/status',                      (_, res) => res.json({ server: 'online', gmail: true, telegram: !!(config.TELEGRAM_BOT_TOKEN), uptime: process.uptime(), nodeVersion: process.version, timestamp: new Date().toISOString() }));
+app.get('/api/admin/analytics',     requireAdmin, (_, res) => {
   const byUser = {};
   actLog.forEach(e => {
-    if (!byUser[e.user]) byUser[e.user] = { logins: 0, emailsSent: 0, tgSent: 0, pinOk: 0, pinFail: 0 };
+    if (!byUser[e.user]) byUser[e.user] = { logins: 0, emailsSent: 0, tgSent: 0 };
     const a = e.action.toLowerCase();
-    if (a.includes('logged in'))    byUser[e.user].logins++;
-    if (a.includes('sent email'))   byUser[e.user].emailsSent++;
-    if (a.includes('telegram'))     byUser[e.user].tgSent++;
-    if (a.includes('pin verified')) byUser[e.user].pinOk++;
-    if (a.includes('pin failed') || a.includes('blocked')) byUser[e.user].pinFail++;
+    if (a.includes('logged in'))  byUser[e.user].logins++;
+    if (a.includes('sent email')) byUser[e.user].emailsSent++;
+    if (a.includes('tg sent'))    byUser[e.user].tgSent++;
   });
-  res.json({ byUser, total: actLog.length, users: users.length });
+  res.json({ byUser, total: actLog.length });
 });
-app.get('/api/admin/email-report', requireAdmin, (_, res) => {
-  res.json({ report: users.map(u => ({ email: u.email, name: u.name, emailsSent: u.emailsSent || 0, lastLogin: u.lastLogin || 'Never', hasPin: !!u.pin })) });
-});
-app.get('/api/admin/export-logs', requireAdmin, (_, res) => res.json(actLog));
-app.get('/api/admin/status', (_, res) => res.json({
-  server: 'online', gmail: true,
-  telegram: !!(config.TELEGRAM_BOT_TOKEN),
-  uptime: process.uptime(), nodeVersion: process.version, timestamp: new Date().toISOString()
-}));
 
 app.delete('/api/admin/users/:email', requireAdmin, (req, res) => {
   const email = decodeURIComponent(req.params.email);
-  users = users.filter(u => u.email !== email);
+  users       = users.filter(u => u.email !== email);
   saveUsers();
   addLog(req.session.gmailUser, `Admin removed user: ${email}`);
   res.json({ ok: true });
 });
 
-// ── START ──
+// ── START SERVER ──
 const PORT = config.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`\n══════════════════════════════════════════════════════`);
-  console.log(`  ✅  VoiceMailAssist v5 — Running`);
+  console.log(`  ✅  VoiceMailAssist v5 — Running on port ${PORT}`);
   console.log(`  🌐  http://localhost:${PORT}/app.html`);
   console.log(`  🔐  Admin: ${ADMIN_EMAIL} + App Password`);
   console.log(`  👤  Users: Google OAuth`);
-  console.log(`  ⏱️   Session timeout: 60 minutes`);
-  console.log(`  💾  Auto backup: every 30 minutes`);
-  console.log(`  🤖  AI: ${config.ANTHROPIC_API_KEY ? 'Connected' : 'No API key'}`);
-  console.log(`  ✈️   Telegram MTProto: ${config.TELEGRAM_API_ID ? 'Ready' : 'No credentials'}`);
+  console.log(`  ⏱️   Session: 60 min timeout`);
+  console.log(`  💾  Backup: every 30 min`);
+  console.log(`  🤖  AI: ${config.ANTHROPIC_API_KEY ? '✅ Connected' : '❌ No API key — add to .env'}`);
+  console.log(`  ✈️   Telegram: ${config.TELEGRAM_API_ID ? '✅ MTProto ready' : '❌ No API ID — add to .env'}`);
+  console.log(`  🔑  Google OAuth: ${config.GOOGLE_CLIENT_ID ? '✅ Configured' : '❌ Missing — add to .env'}`);
   console.log(`══════════════════════════════════════════════════════\n`);
+  if (!config.GOOGLE_CLIENT_ID) console.warn('⚠️  WARNING: GOOGLE_CLIENT_ID missing from .env — OAuth login will fail');
+  if (!config.ANTHROPIC_API_KEY) console.warn('⚠️  WARNING: ANTHROPIC_API_KEY missing — AI features disabled');
 });
