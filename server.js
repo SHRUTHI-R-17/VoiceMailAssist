@@ -39,6 +39,11 @@ const ADMIN_EMAIL = 'shruthir0413@gmail.com';
 const LOG_FILE    = path.join(__dirname, 'activity_log.json');
 const USERS_FILE  = path.join(__dirname, 'users.json');
 const TG_FILE     = path.join(__dirname, 'tg_sessions.json');
+if (process.env.TG_SESSIONS) {
+  try { 
+    fs.writeFileSync(TG_FILE, process.env.TG_SESSIONS); 
+  } catch {}
+}
 const BACKUP_DIR  = path.join(__dirname, 'backups');
 
 if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
