@@ -358,6 +358,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   </div>
   <div class="aip-inp">
     <input class="aip-input" id="aiInput" placeholder="Type or say anything…" onkeydown="if(event.key==='Enter')sendAI()"/>
+    <button class="aip-send" onclick="aiVoiceInput()" title="Voice input" style="background:var(--green);margin-right:2px">🎙️</button>
     <button class="aip-send" onclick="sendAI()">Send</button>
   </div>
 </div>
@@ -583,11 +584,11 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   <div class="dash">
     <div class="sidebar">
       <div class="sb-top">
-        <div class="sb-label">🎙️ Voice — Always Listening</div>
+        <div class="sb-label">🎙️ Voice Message Interface</div>
         <div class="sb-said" id="emailSaid">Listening…</div>
         <div class="sb-resp" id="emailResp">Say a command…</div>
       </div>
-      <div class="sb-cmds" id="emailCmds">
+      <div class="sb-cmds" id="emailCmdsBox">
         <div class="cmd-group">Email Commands</div>
         <div class="cmd-row"><b>"read latest email"</b></div>
         <div class="cmd-row"><b>"count emails"</b></div>
@@ -601,6 +602,8 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
         <div class="cmd-row"><b>"open admin"</b></div>
         <div class="cmd-row"><b>"change language"</b></div>
         <div class="cmd-row"><b>"dark mode / light mode"</b></div>
+        <div class="cmd-row"><b>"hey assist" — AI assistant</b></div>
+        <div class="cmd-row"><b>"cancel" — stop anything</b></div>
         <div class="cmd-row"><b>"sign out"</b></div>
       </div>
     </div>
@@ -647,53 +650,65 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   <div class="dash">
     <div class="sidebar">
       <div class="sb-top">
-        <div class="sb-label">🎙️ Voice — Always Listening</div>
+        <div class="sb-label">🎙️ Voice Message Interface</div>
         <div class="sb-said" id="tgSaid">Listening…</div>
         <div class="sb-resp" id="tgResp">Say a command…</div>
       </div>
-      <div class="sb-cmds">
+      <div class="sb-cmds" id="tgCmdsBox">
         <div class="cmd-group">Telegram Commands</div>
         <div class="cmd-row"><b>"connect telegram"</b></div>
         <div class="cmd-row"><b>"open [contact name]"</b></div>
         <div class="cmd-row"><b>"reply one / two / three"</b></div>
         <div class="cmd-row"><b>"send"</b></div>
         <div class="cmd-row"><b>"refresh chats"</b></div>
+        <div class="cmd-row"><b>"hey assist"</b></div>
         <div class="cmd-group">Navigation</div>
         <div class="cmd-row"><b>"open gmail"</b></div>
         <div class="cmd-row"><b>"open admin"</b></div>
+        <div class="cmd-row"><b>"cancel" — stop anything</b></div>
         <div class="cmd-row"><b>"sign out"</b></div>
       </div>
     </div>
     <!-- TG CONTENT: login OR chat UI -->
-    <div id="tgContent" style="flex:1;display:flex;overflow:hidden;">
+    <div id="tgContent" style="flex:1;display:flex;overflow:hidden;min-height:0;">
       <!-- Login card — shown until connected -->
-      <div class="tg-login" id="tgLoginSection">
+      <div class="tg-login" id="tgLoginSection" style="display:flex;flex:1;">
         <div class="tg-card">
           <h3>✈️ Connect Your Telegram</h3>
           <p class="tg-hint">Enter your phone number to access your real personal Telegram chats — exactly like WhatsApp Web.</p>
           <div id="tgPhoneStep">
-            <label style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;display:block">Phone Number (with country code)</label>
-            <input class="tg-inp" id="tgPhone" type="tel" placeholder="+91 9876543210" style="margin-bottom:10px"/>
+            <label style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;display:block">Phone Number</label>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="background:rgba(34,158,217,.15);color:var(--tg);padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;border:1px solid rgba(34,158,217,.3);flex-shrink:0">+91</span>
+              <input class="tg-inp" id="tgPhone" type="tel" placeholder="Say or type 10 digits" inputmode="numeric" maxlength="10" style="flex:1"/>
+            </div>
+            <div id="tgPhoneVoiceBox" style="background:rgba(34,158,217,.08);border:1px solid rgba(34,158,217,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11px;color:var(--tg)">
+              🎙️ Say "say my number" to enter by voice, or type above and click Send OTP
+            </div>
             <button class="tg-btn" onclick="tgStartLogin()">📲 Send OTP Code</button>
+            <button class="btn-ghost" style="margin-top:6px" onclick="tgVoiceNumber()">🎙️ Enter Number by Voice</button>
           </div>
           <div id="tgOtpStep" style="display:none">
-            <p class="tg-hint" style="margin-bottom:10px">✅ OTP sent! Enter the code Telegram sent to your app.</p>
+            <p class="tg-hint" style="margin-bottom:10px">✅ OTP sent to your Telegram app. Check Telegram for the code.</p>
             <label style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;display:block">OTP Code</label>
-            <input class="tg-inp" id="tgOtp" type="text" placeholder="12345" maxlength="6" style="margin-bottom:8px"/>
-            <label style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;display:block">2FA Password (leave blank if none)</label>
-            <input class="tg-inp" id="tgPass" type="password" placeholder="Only if 2FA is enabled" style="margin-bottom:10px"/>
+            <input class="tg-inp" id="tgOtp" type="text" placeholder="Say or type OTP digits" maxlength="6" inputmode="numeric" style="margin-bottom:6px"/>
+            <div id="tgOtpVoiceBox" style="background:rgba(34,158,217,.08);border:1px solid rgba(34,158,217,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11px;color:var(--tg)">
+              🎙️ Say the OTP digits one by one, or type above
+            </div>
             <button class="tg-btn" onclick="tgVerify()">✅ Verify &amp; Connect</button>
+            <button class="btn-ghost" style="margin-top:6px" onclick="tgVoiceOtp()">🎙️ Say OTP by Voice</button>
             <button class="btn-ghost" style="margin-top:6px" onclick="tgReset()">← Try Different Number</button>
           </div>
           <div id="tgError" style="display:none;font-size:11px;color:var(--red);background:rgba(239,68,68,.1);padding:8px;border-radius:6px;border:1px solid rgba(239,68,68,.2)"></div>
         </div>
       </div>
       <!-- Chat UI — shown after connected -->
-      <div class="tg-chat-ui" id="tgChatSection" style="display:none;flex:1;">
+      <div class="tg-chat-ui" id="tgChatSection" style="display:none;width:100%;">
         <div class="contacts-col">
           <div class="chdr">
             <div class="chdr-title">✈️ Your Chats</div>
             <input class="csearch" id="tgSearch" placeholder="Search contacts…" oninput="filterTg(this.value)"/>
+            <button onclick="tgDisconnect()" style="margin-top:6px;width:100%;padding:5px 8px;border-radius:6px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);font-size:9px;cursor:pointer;font-family:'DM Sans',sans-serif">⚡ Disconnect / Use Different Account</button>
           </div>
           <div class="clist" id="tgList"></div>
         </div>
@@ -729,7 +744,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
         <div class="sb-said" id="adminSaid">Listening…</div>
         <div class="sb-resp" id="adminResp">Say a command…</div>
       </div>
-      <div class="sb-cmds">
+      <div class="sb-cmds" id="adminCmdsBox">
         <div class="cmd-group">Admin Commands</div>
         <div class="cmd-row"><b>"open gmail"</b></div>
         <div class="cmd-row"><b>"open telegram"</b></div>
@@ -751,7 +766,31 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
         </div>
         <div class="asec">
           <div class="asec-hdr"><h3>📋 Activity Log</h3><button class="export-btn" onclick="exportLogs()">📥 Export</button></div>
-          <div style="max-height:220px;overflow-y:auto" id="adminLog"><div style="padding:18px;text-align:center;color:var(--muted)">Loading…</div></div>
+          <div style="max-height:200px;overflow-y:auto" id="adminLog"><div style="padding:18px;text-align:center;color:var(--muted)">Loading…</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div class="asec">
+            <div class="asec-hdr"><h3>🔐 Security Events</h3></div>
+            <div style="max-height:180px;overflow-y:auto" id="adminSec"><div style="padding:14px;text-align:center;color:var(--muted)">Loading…</div></div>
+          </div>
+          <div class="asec">
+            <div class="asec-hdr"><h3>📊 System Status</h3></div>
+            <div style="padding:12px 14px" id="adminSys">
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:var(--panel);border:1px solid var(--border);margin-bottom:6px">
+                <span style="font-size:13px">📬</span><div style="flex:1;font-size:10px">Gmail API</div><span id="sysGmail" style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(16,185,129,.12);color:var(--green)">Checking…</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:var(--panel);border:1px solid var(--border);margin-bottom:6px">
+                <span style="font-size:13px">✈️</span><div style="flex:1;font-size:10px">Telegram MTProto</div><span id="sysTg" style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(16,185,129,.12);color:var(--green)">Checking…</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:var(--panel);border:1px solid var(--border)">
+                <span style="font-size:13px">🤖</span><div style="flex:1;font-size:10px">AI (Claude)</div><span id="sysAI" style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(16,185,129,.12);color:var(--green)">Checking…</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="asec" style="margin-top:12px">
+          <div class="asec-hdr"><h3>📈 Activity Chart</h3></div>
+          <div style="padding:12px 14px"><canvas id="adminChart" width="800" height="130" style="width:100%;height:130px"></canvas></div>
         </div>
         <div class="asec" style="margin-top:12px">
           <div class="asec-hdr"><h3>👥 User Management</h3></div>
@@ -759,6 +798,24 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
             <thead><tr><th>Email</th><th>Emails Sent</th><th>Last Login</th><th>PIN</th><th>Action</th></tr></thead>
             <tbody id="adminUsers"><tr><td colspan="5" style="text-align:center;padding:12px;color:var(--muted)">Loading…</td></tr></tbody>
           </table>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div class="asec">
+            <div class="asec-hdr"><h3>📧 Email Report</h3></div>
+            <table class="dt">
+              <thead><tr><th>User</th><th>Sent</th><th>PIN Set</th></tr></thead>
+              <tbody id="adminEmailReport"><tr><td colspan="3" style="text-align:center;padding:12px;color:var(--muted)">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="asec">
+            <div class="asec-hdr"><h3>⚡ Quick Actions</h3></div>
+            <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+              <button onclick="renderAdmin()" style="padding:8px 12px;border-radius:8px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">↻ Refresh All Data</button>
+              <button onclick="exportLogs()" style="padding:8px 12px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;border:none;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">📥 Export Logs as PDF</button>
+              <button onclick="navTo('email')" style="padding:8px 12px;border-radius:8px;background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">📧 Go to Gmail Dashboard</button>
+              <button onclick="navTo('telegram')" style="padding:8px 12px;border-radius:8px;background:rgba(34,158,217,.1);color:var(--tg);border:1px solid rgba(34,158,217,.2);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif">✈️ Go to Telegram Dashboard</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -858,6 +915,131 @@ const STR = {
 };
 
 // ═══════════════════════════════════════════════════════════════
+//  MULTILINGUAL UI LABELS for sidebar commands
+// ═══════════════════════════════════════════════════════════════
+const UI={
+  en:{
+    vmi:'🎙️ Voice Message Interface',
+    emailCmds:[
+      ['Email Commands',''],
+      ['"read latest email"','reads newest email aloud'],
+      ['"count emails"','counts all sections'],
+      ['"send email"','compose new email'],
+      ['"clear trash"','delete trash emails'],
+      ['"reply one/two/three"','use AI reply'],
+      ['"refresh"','reload list'],
+    ],
+    tgCmds:[
+      ['Telegram Commands',''],
+      ['"connect telegram"','link your account'],
+      ['"open [name]"','open a chat'],
+      ['"reply one/two/three"','use AI reply'],
+      ['"send"','send message'],
+      ['"hey assist"','open AI assistant'],
+    ],
+    adminCmds:[['Admin Commands',''],['\"open gmail\"',''],['\"open telegram\"',''],['\"refresh\"',''],['\"export logs\"',''],['\"sign out\"','']]
+  },
+  ta:{
+    vmi:'🎙️ குரல் செய்தி இடைமுகம்',
+    emailCmds:[
+      ['மின்னஞ்சல் கட்டளைகள்',''],
+      ['"மின்னஞ்சல் படி"','புதிய மின்னஞ்சல் படிக்கும்'],
+      ['"எண்ணு"','மொத்தம் கணக்கிடும்'],
+      ['"அனுப்பு"','புதிய மின்னஞ்சல்'],
+      ['"குப்பை அழி"','குப்பை நீக்கும்'],
+      ['"பதில் ஒன்று/இரண்டு/மூன்று"','AI பதில்'],
+      ['"புதுப்பி"','மறுஏற்றம்'],
+    ],
+    tgCmds:[
+      ['Telegram கட்டளைகள்',''],
+      ['"Telegram இணை"','கணக்கு இணை'],
+      ['"திற [பெயர்]"','சாட் திற'],
+      ['"பதில் ஒன்று/இரண்டு/மூன்று"','AI பதில்'],
+      ['"அனுப்பு"','செய்தி அனுப்பு'],
+      ['"hey assist"','AI உதவியாளர்'],
+    ],
+    adminCmds:[['நிர்வாக கட்டளைகள்',''],['\"gmail திற\"',''],['\"telegram திற\"',''],['\"புதுப்பி\"',''],['\"பதிவு ஏற்றுமதி\"',''],['\"வெளியேறு\"','']]
+  },
+  hi:{
+    vmi:'🎙️ वॉयस संदेश इंटरफेस',
+    emailCmds:[
+      ['ईमेल कमांड',''],
+      ['"ईमेल पढ़ो"','नया ईमेल पढ़ेगा'],
+      ['"गिनो"','सभी गिनेगा'],
+      ['"भेजो"','नया ईमेल'],
+      ['"ट्रैश साफ"','ट्रैश हटाएगा'],
+      ['"जवाब एक/दो/तीन"','AI जवाब'],
+      ['"ताज़ा करो"','पुनः लोड'],
+    ],
+    tgCmds:[
+      ['Telegram कमांड',''],
+      ['"Telegram जोड़ो"','खाता जोड़ें'],
+      ['"खोलो [नाम]"','चैट खोलें'],
+      ['"जवाब एक/दो/तीन"','AI जवाब'],
+      ['"भेजो"','संदेश भेजें'],
+      ['"hey assist"','AI सहायक'],
+    ],
+    adminCmds:[['एडमिन कमांड',''],['\"gmail खोलो\"',''],['\"telegram खोलो\"',''],['\"ताज़ा करो\"',''],['\"लॉग निर्यात\"',''],['\"साइन आउट\"','']]
+  }
+};
+
+function updateSidebarLang(){
+  const u=UI[lang]||UI.en;
+  // Update VoiceMessage Interface labels
+  document.querySelectorAll('.sb-label').forEach(el=>el.textContent=u.vmi);
+  // Update email sidebar
+  const ec=document.getElementById('emailCmdsBox');
+  if(ec){
+    ec.innerHTML=u.emailCmds.map(([cmd,desc],i)=>
+      i===0?`<div class="cmd-group">${cmd}</div>`
+      :`<div class="cmd-row"><b>${cmd}</b>${desc?` — ${desc}`:''}</div>`
+    ).join('');
+  }
+  // Update TG sidebar
+  const tc=document.getElementById('tgCmdsBox');
+  if(tc){
+    tc.innerHTML=u.tgCmds.map(([cmd,desc],i)=>
+      i===0?`<div class="cmd-group">${cmd}</div>`
+      :`<div class="cmd-row"><b>${cmd}</b>${desc?` — ${desc}`:''}</div>`
+    ).join('');
+  }
+  // Update admin sidebar
+  const ac=document.getElementById('adminCmdsBox');
+  if(ac){
+    ac.innerHTML=u.adminCmds.map(([cmd],i)=>
+      i===0?`<div class="cmd-group">${cmd}</div>`
+      :`<div class="cmd-row"><b>${cmd}</b></div>`
+    ).join('');
+  }
+}
+//  Replaces @, dots, special chars so TTS pronounces them correctly
+// ═══════════════════════════════════════════════════════════════
+function makeReadable(text){
+  if(!text)return '';
+  return text
+    // Strip full URLs first — never read them aloud
+    .replace(/https?:\/\/[^\s<>"')]+/gi,' ')
+    .replace(/www\.[^\s<>"')]+/gi,' ')
+    // Email addresses — pronounce correctly
+    .replace(/([a-zA-Z0-9._%+\-]+)@([a-zA-Z0-9.\-]+)\.([a-zA-Z]{2,})/g,(m,u,domain,tld)=>{
+      const us=u.replace(/\./g,' dot ').replace(/_/g,' underscore ').replace(/-/g,' dash ').replace(/\+/g,' plus ');
+      const d=domain.replace(/\./g,' dot ').replace(/-/g,' dash ');
+      return `${us} at ${d} dot ${tld}`;
+    })
+    // Domain endings standing alone
+    .replace(/\.com\b/gi,' dot com').replace(/\.in\b/gi,' dot in')
+    .replace(/\.org\b/gi,' dot org').replace(/\.net\b/gi,' dot net')
+    .replace(/\.co\b/gi,' dot co').replace(/\.io\b/gi,' dot io')
+    // Symbols
+    .replace(/&amp;/g,' and ').replace(/&/g,' and ')
+    .replace(/#/g,' number ').replace(/%/g,' percent ')
+    .replace(/\*/g,' ').replace(/</g,' ').replace(/>/g,' ')
+    .replace(/\[.*?\]/g,' ').replace(/\(http[^)]+\)/g,' ')
+    // Collapse spaces
+    .replace(/\s+/g,' ').trim();
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  APP STATE
 // ═══════════════════════════════════════════════════════════════
 let lang='en', L=STR.en;
@@ -896,6 +1078,7 @@ let pinEntry='', pinAttempts=0, pinCB=null, pinListening=false;
 
 // AI Bot
 let aiHistory=[];
+let aiVoiceActive=false;
 
 // ═══════════════════════════════════════════════════════════════
 //  VOICE ENGINE — HALF DUPLEX, FULLY AUTOMATIC
@@ -917,13 +1100,30 @@ function loadVoices(){
 }
 
 function pickVoice(voices){
-  // Try to get the best voice for the current language
-  bestVoice=
-    voices.find(v=>v.lang===L.code)||
-    voices.find(v=>v.lang.startsWith(lang))||
-    voices.find(v=>v.lang==='en-US')||
-    voices.find(v=>!v.localService)||
-    voices[0]||null;
+  if(!voices||!voices.length)return;
+  // For Tamil — prefer ta-IN voices
+  if(lang==='ta'){
+    bestVoice=
+      voices.find(v=>v.lang==='ta-IN')||
+      voices.find(v=>v.lang.startsWith('ta'))||
+      voices.find(v=>v.lang==='hi-IN')||// Indian English as fallback
+      voices.find(v=>v.lang==='en-IN')||
+      voices.find(v=>v.lang==='en-US')||
+      voices[0]||null;
+  } else if(lang==='hi'){
+    bestVoice=
+      voices.find(v=>v.lang==='hi-IN')||
+      voices.find(v=>v.lang.startsWith('hi'))||
+      voices.find(v=>v.lang==='en-IN')||
+      voices.find(v=>v.lang==='en-US')||
+      voices[0]||null;
+  } else {
+    bestVoice=
+      voices.find(v=>v.lang==='en-IN')||// prefer Indian English
+      voices.find(v=>v.lang==='en-US')||
+      voices.find(v=>v.lang.startsWith('en'))||
+      voices[0]||null;
+  }
 }
 
 function setVS(state){
@@ -1012,6 +1212,8 @@ function startMic(){
   if(!SR){setVS(VS.IDLE);document.getElementById('vPillTxt').textContent='Mic not supported';return;}
   killMic();
   recog=new SR();
+  // Use language code for recognition — accepts regional accent
+  // For Indian languages, also accept English with Indian accent
   recog.lang=L.code;
   recog.continuous=false;// single utterance — more reliable on Chrome
   recog.interimResults=true;
@@ -1164,11 +1366,14 @@ function selectLang(l){
   ['lcEn','lcTa','lcHi'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
   document.getElementById({en:'lcEn',ta:'lcTa',hi:'lcHi'}[l])?.classList.add('sel');
   ['lpE','lpT'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=l.toUpperCase();});
-  // Reselect best voice for new language
+  // Re-pick best voice for the chosen language/accent
   pickVoice(speechSynthesis.getVoices());
+  // Update sidebar command labels to selected language
+  updateSidebarLang();
   speak(L.langSet,()=>navTo('email'));
 }
 
+// Sidebar command labels in all 3 languages
 // ═══════════════════════════════════════════════════════════════
 //  GOOGLE OAUTH
 // ═══════════════════════════════════════════════════════════════
@@ -1287,9 +1492,11 @@ async function fetchLatestEmail(section){
     aiReplies=em.replies||[];
     pendingReply={to:em.from,subject:'Re: '+em.subject};
     showEmailDetail(em);
-    const fn=em.from.split('<')[0].trim().replace(/"/g,'');
-    const imgNote=em.hasImage&&em.imageText?' Image in email says: '+em.imageText+'.':'';
-    const fullSpeak=`${L.readingFrom(fn,em.subject)} ${em.summary}${imgNote}`;
+    const fn=makeReadable(em.from.split('<')[0].trim().replace(/"/g,''));
+    const subj=makeReadable(em.subject);
+    const summary=makeReadable(em.summary||'');
+    const imgNote=em.hasImage&&em.imageText?' Image in email says: '+makeReadable(em.imageText)+'.':'';
+    const fullSpeak=`${L.readingFrom(fn,subj)} ${summary}${imgNote}`;
     speak(fullSpeak,()=>{
       if(aiReplies.length){
         speak(L.askReply(aiReplies),()=>startMic());
@@ -1304,23 +1511,59 @@ async function fetchLatestEmail(section){
 
 function showEmailDetail(em){
   const fn=em.from.split('<')[0].trim().replace(/"/g,'');
+  // Strip links and HTML from body for both display and TTS
+  const cleanBody=stripLinks(em.body||em.snippet||'').slice(0,600);
   document.getElementById('emailDetail').innerHTML=`
     <div class="ehdr">
       <div class="esubj-big">${em.subject}</div>
       <div class="efrom-row">From: <b>${fn}</b> · ${em.date||''}</div>
+      <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+        <button onclick="voiceReadEmail()" style="padding:5px 10px;border-radius:7px;background:rgba(124,58,237,.12);color:var(--purple);border:1px solid rgba(124,58,237,.2);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif">🔊 Read Email Aloud</button>
+        <button onclick="voiceGetReplies()" style="padding:5px 10px;border-radius:7px;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2);font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif">🤖 Read Reply Suggestions</button>
+      </div>
     </div>
-    <div class="esummary">📝 AI Summary: ${em.summary||em.snippet||'No summary available'}</div>
-    ${em.hasImage&&em.imageText?`<div class="esummary" style="border-color:var(--cyan)">🖼️ Image: ${em.imageText}</div>`:''}
-    <div class="ebody">${(em.snippet||em.body||'').replace(/<[^>]*>/g,'').slice(0,400)}</div>
+    <div class="esummary">📝 AI Summary: ${em.summary||cleanBody.slice(0,150)||'No summary available'}</div>
+    ${em.hasImage&&em.imageText?`<div class="esummary" style="border-color:var(--cyan)">🖼️ Image content: ${em.imageText}</div>`:''}
+    <div class="ebody">${cleanBody||'No readable content.'}</div>
     <div class="ai-box">
-      <div class="ai-box-title">✦ AI Reply Suggestions</div>
+      <div class="ai-box-title">✦ AI Reply Suggestions — click or say "reply one / two / three"</div>
       ${(aiReplies||[]).map((r,i)=>`<div class="air" id="air${i}" onclick="selectReply(${i})"><span class="air-num">${i+1}.</span>${r}</div>`).join('')}
     </div>`;
 }
 
+// Called when user clicks "Read Email Aloud" button or says "read email"
+function voiceReadEmail(){
+  const em=emails[selEmail];
+  if(!em){speak('No email selected.',()=>startMic());return;}
+  const fn=makeReadable(em.from.split('<')[0].trim().replace(/"/g,''));
+  const subj=makeReadable(em.subject);
+  const body=makeReadable(stripLinks(em.body||em.snippet||'').slice(0,400));
+  speak(`From ${fn}. Subject: ${subj}. ${body}`,()=>startMic());
+}
+
+// Called when user clicks "Read Reply Suggestions" button
+function voiceGetReplies(){
+  if(!aiReplies||!aiReplies.length){
+    speak('No reply suggestions available.',()=>startMic());return;
+  }
+  speak(L.askReply(aiReplies),()=>startMic());
+}
+
+// Strip all links/URLs from body text for clean reading
+function stripLinks(text){
+  if(!text)return '';
+  return text
+    .replace(/<a[^>]*>.*?<\/a>/gi,' ')
+    .replace(/https?:\/\/[^\s<>"')]+/gi,' ')
+    .replace(/www\.[^\s<>"')]+/gi,' ')
+    .replace(/<[^>]+>/g,' ')
+    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/\s+/g,' ').trim();
+}
+
 async function clickEmail(idx){
   selEmail=idx;emails[idx].read=true;renderEmailList();
-  showLoader('Getting AI replies…');
+  showLoader('Loading email…');
   try{
     const em=emails[idx];
     const r=await fetch('/api/ai/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emailContent:em.body,sender:em.from,subject:em.subject})});
@@ -1328,8 +1571,17 @@ async function clickEmail(idx){
     aiReplies=d.suggestions||[];
     pendingReply={to:em.from,subject:'Re: '+em.subject};
     hideLoader();
-    showEmailDetail({...em,summary:em.snippet||em.body?.slice(0,200)||'',hasImage:false,imageText:''});
-  } catch{hideLoader();}
+    const cleanBody=stripLinks(em.body||em.snippet||'');
+    showEmailDetail({...em,summary:em.snippet||em.body?.slice(0,200)||'',hasImage:false,imageText:'',body:cleanBody});
+    // Auto-read aloud
+    const fn=makeReadable(em.from.split('<')[0].trim().replace(/"/g,''));
+    const subj=makeReadable(em.subject);
+    const bodySpeak=makeReadable(cleanBody.slice(0,300));
+    speak(`Email from ${fn}. Subject: ${subj}. ${bodySpeak}`,()=>{
+      if(aiReplies.length)speak(L.askReply(aiReplies),()=>startMic());
+      else startMic();
+    });
+  } catch{hideLoader();startMic();}
 }
 
 function selectReply(idx){
@@ -1491,19 +1743,35 @@ function cancelPin(){
 // ═══════════════════════════════════════════════════════════════
 //  TELEGRAM
 // ═══════════════════════════════════════════════════════════════
-function checkTgConnected(){
+async function checkTgConnected(){
   const key='tg_ok_'+(user?.email||'');
   if(localStorage.getItem(key)==='yes'){
-    showTgUI();loadTgChats();
-  } else {
-    document.getElementById('tgLoginSection').style.display='flex';
-    document.getElementById('tgChatSection').style.display='none';
+    // Verify server session still alive — server restarts clear in-memory tgClients
+    try{
+      const r=await fetch('/api/telegram/mtproto/chats');
+      if(r.ok){
+        const d=await r.json();
+        if(d.chats&&Array.isArray(d.chats)){
+          showTgUI();
+          tgChats=d.chats;
+          renderTgList();
+          return;
+        }
+      }
+    } catch{}
+    // Session gone — clear flag and show login
+    localStorage.removeItem(key);
   }
+  // Show login card
+  document.getElementById('tgLoginSection').style.display='flex';
+  document.getElementById('tgChatSection').style.display='none';
 }
 
 async function tgStartLogin(){
-  const phone=document.getElementById('tgPhone').value.trim();
-  if(!phone){speak('Please enter your phone number with country code.',()=>startMic());return;}
+  const raw=document.getElementById('tgPhone').value.trim().replace(/\D/g,'');
+  if(!raw||raw.length<10){speak('Please enter your 10 digit phone number.',()=>startMic());return;}
+  const phone='+91'+raw.slice(-10);
+  document.getElementById('tgPhone').value=raw.slice(-10);
   showLoader('Sending OTP to your Telegram app…');
   try{
     const r=await fetch('/api/telegram/mtproto/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})});
@@ -1526,27 +1794,24 @@ async function tgStartLogin(){
 }
 
 async function tgVerify(){
-  const phone=document.getElementById('tgPhone').value.trim();
+  const raw=document.getElementById('tgPhone').value.trim().replace(/\D/g,'');
+  const phone='+91'+raw.slice(-10);
   const code=document.getElementById('tgOtp').value.trim();
-  const pass=document.getElementById('tgPass').value.trim();
-  if(!code){speak('Please enter the OTP code.',()=>startMic());return;}
+  if(!code){speak('Please enter or say the OTP code.',()=>startMic());return;}
   showLoader('Verifying OTP…');
   try{
-    const r=await fetch('/api/telegram/mtproto/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,code,password:pass})});
+    const r=await fetch('/api/telegram/mtproto/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,code,password:''})});
     const d=await r.json();
     hideLoader();
     if(d.success){
       localStorage.setItem('tg_ok_'+(user?.email||''),'yes');
       showTgUI();loadTgChats();
       speak('Telegram connected successfully. Your real chats are loading.',()=>startMic());
-    } else if(d.need2FA){
-      document.getElementById('tgPass').focus();
-      speak('2FA password required. Enter your Telegram 2FA password and click Verify again.',()=>startMic());
     } else {
-      showTgErr(d.error||'Verification failed. Check the code.');
-      speak('Verification failed. '+(d.error||''),()=>startMic());
+      showTgErr(d.error||'Verification failed. Please check the OTP code.');
+      speak('Verification failed. '+(d.error||'Please try again.'),()=>startMic());
     }
-  } catch(e){hideLoader();showTgErr(e.message);speak('Error verifying.',()=>startMic());}
+  } catch(e){hideLoader();showTgErr(e.message);speak('Error verifying. Please try again.',()=>startMic());}
 }
 
 function tgReset(){
@@ -1554,8 +1819,30 @@ function tgReset(){
   document.getElementById('tgOtpStep').style.display='none';
   document.getElementById('tgError').style.display='none';
   document.getElementById('tgOtp').value='';
-  document.getElementById('tgPass').value='';
   speak('Enter your phone number again.',()=>startMic());
+}
+
+// Voice phone number entry
+let tgVoicePhoneActive=false;
+let tgVoiceOtpActive=false;
+let tgVoicePhoneDigits='';
+
+function tgVoiceNumber(){
+  tgVoicePhoneDigits='';
+  tgVoicePhoneActive=true;
+  tgVoiceOtpActive=false;
+  document.getElementById('tgPhone').value='';
+  document.getElementById('tgPhoneVoiceBox').textContent='🔴 Listening… say your 10 digits one by one';
+  document.getElementById('tgPhoneVoiceBox').style.color='var(--red)';
+  speak('Say your 10 digit mobile number now. Say each digit clearly.',()=>startMic());
+}
+
+function tgVoiceOtp(){
+  tgVoiceOtpActive=true;
+  tgVoicePhoneActive=false;
+  document.getElementById('tgOtpVoiceBox').textContent='🔴 Listening… say your OTP digits';
+  document.getElementById('tgOtpVoiceBox').style.color='var(--red)';
+  speak('Say the OTP code digits now.',()=>startMic());
 }
 
 function showTgErr(msg){
@@ -1565,7 +1852,23 @@ function showTgErr(msg){
 
 function showTgUI(){
   document.getElementById('tgLoginSection').style.display='none';
-  document.getElementById('tgChatSection').style.display='flex';
+  const sec=document.getElementById('tgChatSection');
+  sec.style.display='flex';
+  sec.style.flex='1';
+}
+
+function tgDisconnect(){
+  const key='tg_ok_'+(user?.email||'');
+  localStorage.removeItem(key);
+  selChat=null;tgChats=[];
+  document.getElementById('tgChatSection').style.display='none';
+  document.getElementById('tgLoginSection').style.display='flex';
+  document.getElementById('tgPhoneStep').style.display='block';
+  document.getElementById('tgOtpStep').style.display='none';
+  document.getElementById('tgPhone').value='';
+  document.getElementById('tgOtp').value='';
+  document.getElementById('tgError').style.display='none';
+  speak('Disconnected. Enter your phone number to reconnect.',()=>startMic());
 }
 
 async function loadTgChats(){
@@ -1672,21 +1975,76 @@ async function doTgSend(chatId,message,name){
 // ═══════════════════════════════════════════════════════════════
 function toggleAI(){document.getElementById('aiPanel').classList.toggle('open');}
 
+function aiVoiceInput(){
+  aiVoiceActive=true;
+  const inp=document.getElementById('aiInput');
+  inp.placeholder='🔴 Listening… say your question';
+  speak('Say your question now.',()=>startMic());
+}
+
 async function sendAI(){
   const inp=document.getElementById('aiInput');
   const msg=inp.value.trim();
   if(!msg)return;
-  inp.value='';
+  inp.value='';inp.placeholder='Type or say anything…';
   addAIMsg(msg,'u');
+
+  const langName=lang==='ta'?'Tamil':lang==='hi'?'Hindi':'English';
+  const systemCtx=`Language: ${langName}. User: ${user?.name||user?.email||'User'}. Role: ${role}. Reply in ${langName} in 1-2 short sentences. Be warm and helpful like Siri or Alexa. Never say sorry or I cannot.`;
+
   try{
-    const r=await fetch('/api/ai/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:aiHistory})});
+    const r=await fetch('/api/ai/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:msg, history:aiHistory.slice(-8), systemCtx})
+    });
+    if(!r.ok)throw new Error('Server error');
     const d=await r.json();
-    const reply=d.reply||'Sorry, I could not process that.';
+    const reply=d.reply||getLocalAIReply(msg);
     aiHistory.push({role:'user',content:msg},{role:'assistant',content:reply});
     if(aiHistory.length>16)aiHistory=aiHistory.slice(-16);
     addAIMsg(reply,'b');
     speak(reply,()=>startMic());
-  } catch{addAIMsg('Error contacting AI.','b');}
+  } catch{
+    const reply=getLocalAIReply(msg);
+    addAIMsg(reply,'b');
+    speak(reply,()=>startMic());
+  }
+}
+
+// Local fallback AI responses — never says "Sorry"
+function getLocalAIReply(msg){
+  const m=msg.toLowerCase();
+  if(/email|mail/.test(m)){
+    if(lang==='ta')return 'மின்னஞ்சல் பக்கத்திற்கு செல்ல "open gmail" சொல்லுங்கள்.';
+    if(lang==='hi')return 'ईमेल देखने के लिए "open gmail" कहें।';
+    return 'Say "read latest email" to check your inbox, or "count emails" to see totals.';
+  }
+  if(/telegram|message|chat/.test(m)){
+    if(lang==='ta')return 'Telegram-க்கு செல்ல "open telegram" சொல்லுங்கள்.';
+    if(lang==='hi')return 'Telegram के लिए "open telegram" कहें।';
+    return 'Say "open telegram" to access your chats.';
+  }
+  if(/time|what time|clock/.test(m)){
+    const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    if(lang==='ta')return `இப்போது ${t} ஆகிறது.`;
+    if(lang==='hi')return `अभी ${t} बज रहे हैं।`;
+    return `It is currently ${t}.`;
+  }
+  if(/date|today|what day/.test(m)){
+    const dt=new Date().toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    if(lang==='ta')return `இன்று ${dt}.`;
+    if(lang==='hi')return `आज ${dt} है।`;
+    return `Today is ${dt}.`;
+  }
+  if(/hello|hi|hey/.test(m)){
+    if(lang==='ta')return 'வணக்கம்! உங்களுக்கு எப்படி உதவலாம்?';
+    if(lang==='hi')return 'नमस्ते! मैं आपकी कैसे मदद कर सकता हूं?';
+    return 'Hello! I am here to help. Ask me anything or say a voice command.';
+  }
+  if(lang==='ta')return 'நான் உங்களுக்கு உதவ தயாராக இருக்கிறேன்.';
+  if(lang==='hi')return 'मैं आपकी मदद करने के लिए यहाँ हूं।';
+  return 'I am ready to help. You can ask me about your emails, Telegram, or anything else.';
 }
 
 function addAIMsg(text,role){
@@ -1712,18 +2070,89 @@ async function renderAdmin(){
   try{
     const r=await fetch('/api/admin/logs');const d=await r.json();
     const el=document.getElementById('adminLog');
-    if(!d.logs?.length){el.innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">No activity yet</div>';return;}
-    el.innerHTML=d.logs.slice(0,15).map(e=>{
-      const c=e.action.includes('✅')?'var(--green)':e.action.includes('❌')||e.action.includes('🚫')?'var(--red)':'var(--purple)';
-      return `<div class="log-item"><div class="log-dot" style="background:${c}"></div><div><div class="log-action">${e.action}</div><div class="log-meta">${e.user} · ${e.date} ${e.time}</div></div></div>`;
-    }).join('');
+    const secEl=document.getElementById('adminSec');
+    if(!d.logs?.length){
+      el.innerHTML='<div style="padding:18px;text-align:center;color:var(--muted)">No activity yet</div>';
+      secEl.innerHTML='<div style="padding:14px;text-align:center;color:var(--muted)">No events</div>';
+    } else {
+      el.innerHTML=d.logs.slice(0,15).map(e=>{
+        const c=e.action.includes('✅')?'var(--green)':e.action.includes('❌')||e.action.includes('🚫')?'var(--red)':'var(--purple)';
+        return `<div class="log-item"><div class="log-dot" style="background:${c}"></div><div><div class="log-action">${e.action}</div><div class="log-meta">${e.user} · ${e.date} ${e.time}</div></div></div>`;
+      }).join('');
+      const secLogs=d.logs.filter(e=>{const a=e.action.toLowerCase();return a.includes('pin')||a.includes('login')||a.includes('block')||a.includes('session');}).slice(0,10);
+      secEl.innerHTML=secLogs.length?secLogs.map(e=>{
+        const ico=e.action.includes('✅')||e.action.includes('verified')?'✅':e.action.includes('🚫')||e.action.includes('block')?'🚫':'⚠️';
+        return `<div class="log-item"><div style="font-size:12px;flex-shrink:0">${ico}</div><div><div class="log-action">${e.action}</div><div class="log-meta">${e.user} · ${e.time}</div></div></div>`;
+      }).join(''):'<div style="padding:14px;text-align:center;color:var(--muted)">No security events</div>';
+      // Draw chart
+      drawAdminChart(d.logs);
+    }
   } catch{}
   try{
     const r=await fetch('/api/admin/users');const d=await r.json();
     document.getElementById('adminUsers').innerHTML=(d.users||[]).map(u=>
       `<tr><td>${u.email}</td><td>${u.emailsSent||0}</td><td>${u.lastLogin==='Never'?'Never':new Date(u.lastLogin).toLocaleDateString()}</td><td>${u.hasPin?'✅':'❌'}</td><td><button class="del-btn" onclick="removeUser('${u.email}')">Remove</button></td></tr>`
     ).join('')||'<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--muted)">No users yet</td></tr>';
+    // Email report
+    document.getElementById('adminEmailReport').innerHTML=(d.users||[]).map(u=>
+      `<tr><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email.split('@')[0]}</td><td>${u.emailsSent||0}</td><td>${u.hasPin?'✅':'❌'}</td></tr>`
+    ).join('')||'<tr><td colspan="3" style="text-align:center;padding:12px;color:var(--muted)">No data</td></tr>';
   } catch{}
+  // System status
+  try{
+    const r=await fetch('/api/admin/status');const d=await r.json();
+    const ok=(id,v)=>{const el=document.getElementById(id);if(el){el.textContent=v?'● Online':'● Offline';el.style.background=v?'rgba(16,185,129,.12)':'rgba(239,68,68,.12)';el.style.color=v?'var(--green)':'var(--red)';}};
+    ok('sysGmail',d.gmail);ok('sysTg',d.telegram);ok('sysAI',!!d.ai);
+  } catch{}
+}
+
+function drawAdminChart(logs){
+  const canvas=document.getElementById('adminChart');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||800,H=130;
+  canvas.width=W;canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+  const cats=[
+    {l:'Logins',kw:'logged in',c:'#7c3aed'},
+    {l:'Emails',kw:'sent email',c:'#06b6d4'},
+    {l:'Telegram',kw:'tg sent',c:'#229ed9'},
+    {l:'PIN OK',kw:'pin set',c:'#10b981'},
+    {l:'PIN Fail',kw:'pin failed',c:'#ef4444'},
+    {l:'Sessions',kw:'session',c:'#f59e0b'}
+  ];
+  const vals=cats.map(cat=>logs.filter(e=>e.action.toLowerCase().includes(cat.kw)).length);
+  const maxVal=Math.max(...vals,1);
+  const pL=38,pR=16,pT=18,pB=28,gW=W-pL-pR,gH=H-pT-pB;
+  // Grid lines
+  ctx.strokeStyle='rgba(30,35,64,.8)';ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){
+    const y=pT+(gH/4)*i;
+    ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();
+    ctx.fillStyle='#64748b';ctx.font='9px sans-serif';ctx.fillText(Math.round(maxVal-(maxVal/4)*i),2,y+3);
+  }
+  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font='9px sans-serif';
+  const step=gW/(cats.length-1);
+  cats.forEach((c,i)=>ctx.fillText(c.l,pL+i*step,H-4));
+  // Area fill
+  const grad=ctx.createLinearGradient(0,pT,0,pT+gH);
+  grad.addColorStop(0,'rgba(124,58,237,.3)');grad.addColorStop(1,'rgba(124,58,237,0)');
+  ctx.beginPath();
+  vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.lineTo(pL+(cats.length-1)*step,pT+gH);ctx.lineTo(pL,pT+gH);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  // Line
+  ctx.beginPath();ctx.strokeStyle='#7c3aed';ctx.lineWidth=2;
+  vals.forEach((v,i)=>{const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+  ctx.stroke();
+  // Dots
+  vals.forEach((v,i)=>{
+    const x=pL+i*step,y=pT+gH-(v/maxVal)*gH;
+    ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=cats[i].c;ctx.fill();
+    ctx.strokeStyle=dark?'#111428':'#f8f9fe';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle=cats[i].c;ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    if(v>0)ctx.fillText(v,x,y-8);
+  });
 }
 
 async function removeUser(email){
@@ -1748,18 +2177,95 @@ async function exportLogs(){
 //  COMMAND PROCESSOR
 // ═══════════════════════════════════════════════════════════════
 function handleCmd(cmd){
-  // ── PIN MODE ──
+  // ══════════════════════════════════════════
+  // ABSOLUTE PRIORITY 1: PIN LISTENING
+  // This must be checked FIRST before anything
+  // else including cancel — the user said digits
+  // ══════════════════════════════════════════
   if(pinListening){
     pinListening=false;
     document.getElementById('pinVIco').textContent='🎙️';
-    document.getElementById('pinStatus').textContent=`"${cmd}"`;
+    document.getElementById('pinStatus').textContent=`Heard: "${cmd}"`;
     const digits=extractDigits(cmd);
     if(digits.length===4){
-      pinEntry=digits;updatePinDots(digits);
+      pinEntry=digits;
+      updatePinDots(digits);
       checkPin(digits);
+    } else if(digits.length>0&&digits.length<4){
+      // Partial — retry
+      speak(`I heard ${digits.length} digit${digits.length>1?'s':''}. Please say all 4 digits clearly as one phrase.`,()=>listenPin());
     } else {
-      speak('I could not hear 4 digits clearly. Please say your PIN again.',()=>listenPin());
+      speak('I could not hear any digits. Please say your 4-digit PIN now.',()=>listenPin());
     }
+    return;
+  }
+
+  // ══ PRIORITY 2: CANCEL & SIGN OUT override everything else ══
+  if(/\bcancel\b|ரத்து|रद्द/.test(cmd)){
+    tgVoicePhoneActive=false;tgVoiceOtpActive=false;aiVoiceActive=false;
+    awaitSection=false;composeStep=0;
+    window.speechSynthesis.cancel();
+    if(document.getElementById('pinOverlay').classList.contains('show')){cancelPin();return;}
+    if(document.getElementById('confOverlay').classList.contains('show')){confirmNo();return;}
+    speak(L.cancelled,()=>startMic());return;
+  }
+  if(/\bsign out\b|\blogout\b|வெளியேறு|साइन आउट/.test(cmd)){doSignOut();return;}
+  if(/\bhey assist\b|\bhey assistant\b/.test(cmd)){
+    document.getElementById('aiPanel').classList.add('open');
+    aiVoiceActive=true;
+    speak('Hello! I am your AI assistant. How can I help you?',()=>startMic());
+    return;
+  }
+
+  // ── TG PHONE VOICE MODE ── (highest priority)
+  if(tgVoicePhoneActive){
+    const digits=extractDigits(cmd,10);
+    if(digits.length>=10){
+      tgVoicePhoneActive=false;
+      const num=digits.slice(0,10);
+      tgVoicePhoneDigits=num;
+      document.getElementById('tgPhone').value=num;
+      document.getElementById('tgPhoneVoiceBox').style.color='var(--cyan)';
+      document.getElementById('tgPhoneVoiceBox').textContent='✅ Heard: +91 '+num.split('').join(' ');
+      speak(`I heard plus 91 ${num.split('').join(' ')}. Say yes correct to confirm or no wrong to say again.`,()=>startMic());
+      tgVoicePhoneActive='confirm';
+    } else if(tgVoicePhoneActive==='confirm'){
+      if(isYes(cmd)){tgVoicePhoneActive=false;speak('Number confirmed. Click Send OTP or say send OTP.',()=>startMic());}
+      else if(isNo(cmd)){tgVoicePhoneActive=true;tgVoicePhoneDigits='';speak('Say your 10 digits again.',()=>startMic());}
+      else speak('Say yes correct or no wrong.',()=>startMic());
+    } else {
+      speak('I did not catch all 10 digits. Please say your number again clearly.',()=>startMic());
+    }
+    return;
+  }
+
+  // ── TG OTP VOICE MODE ──
+  if(tgVoiceOtpActive){
+    const digits=extractDigits(cmd,6);
+    if(digits.length>=4){
+      tgVoiceOtpActive=false;
+      const otp=digits.slice(0,6);
+      document.getElementById('tgOtp').value=otp;
+      document.getElementById('tgOtpVoiceBox').style.color='var(--cyan)';
+      document.getElementById('tgOtpVoiceBox').textContent='✅ OTP: '+otp.split('').join(' ');
+      speak(`I heard OTP ${otp.split('').join(' ')}. Say yes correct to verify or no wrong to say again.`,()=>startMic());
+      tgVoiceOtpActive='confirm';
+    } else if(tgVoiceOtpActive==='confirm'){
+      if(isYes(cmd)){tgVoiceOtpActive=false;tgVerify();}
+      else if(isNo(cmd)){tgVoiceOtpActive=true;speak('Say your OTP digits again.',()=>startMic());}
+      else speak('Say yes correct or no wrong.',()=>startMic());
+    } else {
+      speak('Could not hear the OTP. Please say the digits clearly.',()=>startMic());
+    }
+    return;
+  }
+
+  // ── AI BOT VOICE MODE ──
+  if(aiVoiceActive){
+    aiVoiceActive=false;
+    const inp=document.getElementById('aiInput');
+    if(inp){inp.value=cmd;inp.placeholder='Type or say anything…';}
+    sendAI();
     return;
   }
 
@@ -1787,20 +2293,13 @@ function handleCmd(cmd){
   // ── COMPOSE FLOW ──
   if(composeStep>0){handleCompose(cmd);return;}
 
-  // ── GLOBAL CANCEL ──
-  if(/cancel|ரத்து|रद्द/.test(cmd)){
-    if(document.getElementById('pinOverlay').classList.contains('show')){cancelPin();return;}
-    if(document.getElementById('confOverlay').classList.contains('show')){confirmNo();return;}
-    speak(L.cancelled,()=>startMic());return;
-  }
-
   // ── GLOBAL NAV ──
   if(/sign out|logout|வெளியேறு|साइन आउट/.test(cmd)){doSignOut();return;}
-  if(/dark mode/.test(cmd)){if(!dark)toggleTheme();else startMic();return;}
-  if(/light mode/.test(cmd)){if(dark)toggleTheme();else startMic();return;}
+  if(/dark mode|இருட்டு|डार्क/.test(cmd)){if(!dark)toggleTheme();else startMic();return;}
+  if(/light mode|ஒளி|लाइट/.test(cmd)){if(dark)toggleTheme();else startMic();return;}
   if(/change language|மொழி மாற்று|भाषा बदलो/.test(cmd)){navTo('lang');return;}
-  if(/open gmail|open email|திற ஜிமெயில்/.test(cmd)){navTo('email');return;}
-  if(/open telegram|திற டெலிகிராம்/.test(cmd)){navTo('telegram');return;}
+  if(/open gmail|open email|திற ஜிமெயில்|ईमेल खोलो/.test(cmd)){navTo('email');return;}
+  if(/open telegram|திற டெலிகிராம்|टेलीग्राम खोलो/.test(cmd)){navTo('telegram');return;}
   if((/open admin|admin dashboard/.test(cmd))&&role==='admin'){navTo('admin');return;}
   if(/stop|quiet|நிறுத்து|रुको/.test(cmd)){window.speechSynthesis.cancel();startMic();return;}
 
@@ -1832,7 +2331,7 @@ function cmdAdminLogin(cmd){
       document.getElementById('alStep1').className='step-box active';
       document.getElementById('alEmail').textContent=authEmail;
       authStep='admin_email_confirm';
-      speak(L.emailHeard(authEmail),()=>startMic());
+      speak(L.emailHeard(makeReadable(authEmail)),()=>startMic());
     } else speak(L.sayEmail,()=>startMic());
     return;
   }
@@ -1847,7 +2346,7 @@ function cmdAdminLogin(cmd){
       authStep='admin_email';authEmail='';
       document.getElementById('alEmail').textContent='Say your admin email…';
       speak(L.sayEmail,()=>startMic());
-    } else speak(L.emailHeard(authEmail),()=>startMic());
+    } else speak(L.emailHeard(makeReadable(authEmail)),()=>startMic());
     return;
   }
   if(authStep==='admin_pw'){
@@ -1933,13 +2432,13 @@ function handleCompose(cmd){
     composeTo=spokenToEmail(cmd)||cmd.replace(/\s/g,'').toLowerCase();
     if(composeTo.includes('@')){
       composeStep=2;
-      speak(`Sending to ${composeTo}. What is the subject?`,()=>startMic());
-    } else speak('I could not hear a valid email. Please say the recipient email again.',()=>startMic());
+      speak(`Sending to ${makeReadable(composeTo)}. What is the subject?`,()=>startMic());
+    } else speak('I could not hear a valid email address. Please say the recipient email again.',()=>startMic());
     return;
   }
   if(composeStep===2){
     composeSub=cmd;composeStep=3;
-    speak(`Subject: ${composeSub}. Now say your message.`,()=>startMic());
+    speak(`Subject: ${makeReadable(composeSub)}. Now say your message body.`,()=>startMic());
     return;
   }
   if(composeStep===3){
@@ -1951,7 +2450,11 @@ function handleCompose(cmd){
 }
 
 function cmdTelegram(cmd){
-  if(/connect|link/.test(cmd)){speak('Enter your phone number in the form and click Send OTP.',()=>startMic());}
+  if(/connect|link|my number|enter number/.test(cmd)){
+    if(document.getElementById('tgPhoneStep').style.display!=='none'){tgVoiceNumber();}
+    else speak('Enter your phone number in the form.',()=>startMic());
+  } else if(/send otp|otp code|verify/.test(cmd)&&document.getElementById('tgPhoneStep').style.display!=='none'){tgStartLogin();}
+  else if(/say otp|voice otp/.test(cmd)&&document.getElementById('tgOtpStep').style.display!=='none'){tgVoiceOtp();}
   else if(/refresh/.test(cmd)){loadTgChats();speak('Refreshing chats.',()=>startMic());}
   else if(/^open\s+(.+)/.test(cmd)){
     const name=cmd.replace(/^open\s+/,'').trim();
@@ -1977,13 +2480,14 @@ function cmdAdmin(cmd){
 function isYes(cmd){return/\byes\b|correct|ஆம்|सही|हाँ/.test(cmd);}
 function isNo(cmd) {return/\bno\b|wrong|இல்லை|गलत|नहीं/.test(cmd);}
 
-function extractDigits(said){
+function extractDigits(said,maxLen){
+  maxLen=maxLen||4;
   const wm={zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',
     சுழியம்:'0',ஒன்று:'1',இரண்டு:'2',மூன்று:'3',நான்கு:'4',ஐந்து:'5',ஆறு:'6',ஏழு:'7',எட்டு:'8',ஒன்பது:'9',
     शून्य:'0',एक:'1',दो:'2',तीन:'3',चार:'4',पाँच:'5',छह:'6',सात:'7',आठ:'8',नौ:'9'};
   let d=said.replace(/\D/g,'');
-  if(d.length>=4)return d.slice(0,4);
-  d=said.split(/\s+/).map(w=>wm[w.toLowerCase()]||w.replace(/\D/g,'')).join('').slice(0,4);
+  if(d.length>=maxLen)return d.slice(0,maxLen);
+  d=said.split(/\s+/).map(w=>wm[w.toLowerCase()]||w.replace(/\D/g,'')).join('').slice(0,maxLen);
   return d;
 }
 
@@ -2049,6 +2553,14 @@ async function init(){
   // 2. Language
   lang=localStorage.getItem('vma_lang')||'en';
   L=STR[lang];
+  // Apply language to sidebar labels immediately (even before voice starts)
+  setTimeout(()=>{
+    pickVoice(speechSynthesis.getVoices());
+    updateSidebarLang();
+    ['lpE','lpT'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=lang.toUpperCase();});
+    ['lcEn','lcTa','lcHi'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+    document.getElementById({en:'lcEn',ta:'lcTa',hi:'lcHi'}[lang])?.classList.add('sel');
+  },500);
 
   // 3. Check OAuth redirect params
   const params=new URLSearchParams(window.location.search);

@@ -293,9 +293,9 @@ app.post('/api/user/verifypin', async (req, res) => {
   const { pin } = req.body;
   const email   = req.session.googleUser?.email || req.session.gmailUser;
 
-  // Admin uses a fixed PIN "0413" stored in session or env
+  // Admin uses a fixed PIN stored in env — default 0204
   if (req.session.userRole === 'admin') {
-    const adminPin = process.env.ADMIN_PIN || '0413';
+    const adminPin = process.env.ADMIN_PIN || '0204';
     return res.json({ valid: String(pin) === String(adminPin) });
   }
 
@@ -621,20 +621,23 @@ app.post('/api/ai/suggest', async (req, res) => {
 
 // ── AI BOT CHAT ──
 app.post('/api/ai/chat', async (req, res) => {
-  const { message, history } = req.body;
+  const { message, history, systemCtx } = req.body;
   if (!message) return res.status(400).json({ error: 'No message' });
   if (!config.ANTHROPIC_API_KEY) return res.json({ reply: 'AI not configured. Add ANTHROPIC_API_KEY to your .env file.' });
   try {
+    const system = systemCtx
+      ? `You are VoiceAssist, an intelligent AI assistant like Siri or Alexa, built into VoiceMailAssist. ${systemCtx} Never say "I'm sorry" or "I cannot help". Always give a helpful, warm, direct answer in 1-2 sentences. Respond ONLY in the user's language.`
+      : 'You are VoiceAssist, a smart helpful AI assistant like Siri inside VoiceMailAssist. Reply in 1-2 short sentences. Be warm and direct. Never say sorry or I cannot.';
     const messages = [...(history || []).slice(-8), { role: 'user', content: message }];
     const r = await axios.post('https://api.anthropic.com/v1/messages', {
       model:      'claude-haiku-4-5-20251001',
-      max_tokens: 400,
-      system:     'You are a helpful AI assistant inside VoiceMailAssist. Keep answers short and clear — 2 sentences max — because they will be read aloud.',
+      max_tokens: 200,
+      system,
       messages
     }, { headers: { 'x-api-key': config.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' }, timeout: 30000 });
     res.json({ reply: r.data.content[0].text.trim() });
   } catch (e) {
-    res.status(500).json({ reply: 'Sorry, I could not process that right now.' });
+    res.status(500).json({ reply: 'I am here to help. Please try again.' });
   }
 });
 
@@ -685,37 +688,46 @@ app.post('/api/telegram/mtproto/verify', async (req, res) => {
   const sessionKey = (phone || req.session.tgPhone || '').replace(/\D/g, '');
   const client     = tgClients[sessionKey];
   const codeHash   = tgCodeRequests[sessionKey];
-  if (!client) return res.status(400).json({ error: 'No session found. Start again.' });
+  if (!client) return res.status(400).json({ error: 'Session expired. Please click Send OTP again to restart.' });
+  if (!codeHash) return res.status(400).json({ error: 'Code hash missing. Please click Send OTP again.' });
 
   try {
     await client.invoke(new (require('telegram/tl').Api.auth.SignIn)({
       phoneNumber:   phone || req.session.tgPhone,
-      phoneCodeHash: codeHash || '',
-      phoneCode:     code
+      phoneCodeHash: codeHash,
+      phoneCode:     String(code).trim()
     }));
     const session          = client.session.save();
     tgSessions[sessionKey] = session;
     saveTgSessions();
     req.session.tgSession  = sessionKey;
-    addLog(req.session.googleUser?.email || 'user', `Telegram verified: ${phone}`);
+    addLog(req.session.googleUser?.email || req.session.gmailUser || 'user', `✅ Telegram verified: ${phone}`);
     res.json({ success: true });
   } catch (err) {
+    const msg = err.message || '';
+    console.error('TG verify error:', msg);
     // Handle 2FA
-    if (err.message?.includes('SESSION_PASSWORD_NEEDED') || err.message?.includes('2FA')) {
-      if (!password) return res.json({ success: false, need2FA: true });
+    if (msg.includes('SESSION_PASSWORD_NEEDED')) {
+      if (!password) return res.json({ success: false, need2FA: true, error: '2FA password required. Enter your Telegram cloud password.' });
       try {
-        await client.signInWithPassword({ apiId: config.TELEGRAM_API_ID, apiHash: config.TELEGRAM_API_HASH }, { password: async () => password });
-        const session          = client.session.save();
+        await client.signInWithPassword(
+          { apiId: config.TELEGRAM_API_ID, apiHash: config.TELEGRAM_API_HASH },
+          { password: async () => password }
+        );
+        const session = client.session.save();
         tgSessions[sessionKey] = session;
         saveTgSessions();
-        req.session.tgSession  = sessionKey;
+        req.session.tgSession = sessionKey;
+        addLog(req.session.googleUser?.email || req.session.gmailUser || 'user', `✅ Telegram 2FA verified: ${phone}`);
         return res.json({ success: true });
       } catch (e2) {
-        return res.status(400).json({ error: '2FA password wrong: ' + e2.message });
+        return res.status(400).json({ error: 'Wrong 2FA password: ' + e2.message });
       }
     }
-    console.error('TG verify error:', err.message);
-    res.status(400).json({ error: err.message });
+    if (msg.includes('PHONE_CODE_EXPIRED'))  return res.status(400).json({ error: 'OTP code expired. Please click Send OTP again to get a new code.' });
+    if (msg.includes('PHONE_CODE_INVALID'))  return res.status(400).json({ error: 'Wrong OTP code. Please check the code in your Telegram app and try again.' });
+    if (msg.includes('FLOOD_WAIT'))          return res.status(400).json({ error: 'Too many attempts. Please wait a minute and try again.' });
+    res.status(400).json({ error: msg || 'Verification failed. Please try again.' });
   }
 });
 
@@ -805,10 +817,22 @@ app.listen(PORT, () => {
   console.log(`  👤  Users: Google OAuth`);
   console.log(`  ⏱️   Session: 60 min timeout`);
   console.log(`  💾  Backup: every 30 min`);
-  console.log(`  🤖  AI: ${config.ANTHROPIC_API_KEY ? '✅ Connected' : '❌ No API key — add to .env'}`);
-  console.log(`  ✈️   Telegram: ${config.TELEGRAM_API_ID ? '✅ MTProto ready' : '❌ No API ID — add to .env'}`);
-  console.log(`  🔑  Google OAuth: ${config.GOOGLE_CLIENT_ID ? '✅ Configured' : '❌ Missing — add to .env'}`);
+  console.log(`══════════════════════════════════════════════════════`);
+  // Validate all required env vars
+  const checks = [
+    ['GOOGLE_CLIENT_ID',     config.GOOGLE_CLIENT_ID,     '❌ MISSING — Google OAuth login will fail'],
+    ['GOOGLE_CLIENT_SECRET', config.GOOGLE_CLIENT_SECRET, '❌ MISSING — Google OAuth login will fail'],
+    ['TELEGRAM_API_ID',      config.TELEGRAM_API_ID,      '❌ MISSING — Telegram MTProto will not work'],
+    ['TELEGRAM_API_HASH',    config.TELEGRAM_API_HASH,    '❌ MISSING — Telegram MTProto will not work'],
+    ['ANTHROPIC_API_KEY',    config.ANTHROPIC_API_KEY,    '⚠️  MISSING — AI features disabled (fallback replies only)'],
+    ['TELEGRAM_BOT_TOKEN',   config.TELEGRAM_BOT_TOKEN,   '⚠️  MISSING — Bot API disabled (MTProto still works)'],
+    ['ADMIN_PIN',            process.env.ADMIN_PIN,        '⚠️  MISSING — Using default PIN 0204'],
+  ];
+  let allOk=true;
+  checks.forEach(([name,val,msg])=>{
+    if(!val||val===0||val===''){console.warn(`  ${msg} → add ${name}= to your .env file`);allOk=false;}
+    else console.log(`  ✅  ${name}: configured`);
+  });
+  if(allOk) console.log(`  🎉  All environment variables configured correctly`);
   console.log(`══════════════════════════════════════════════════════\n`);
-  if (!config.GOOGLE_CLIENT_ID) console.warn('⚠️  WARNING: GOOGLE_CLIENT_ID missing from .env — OAuth login will fail');
-  if (!config.ANTHROPIC_API_KEY) console.warn('⚠️  WARNING: ANTHROPIC_API_KEY missing — AI features disabled');
 });
