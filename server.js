@@ -39,11 +39,6 @@ const ADMIN_EMAIL = 'shruthir0413@gmail.com';
 const LOG_FILE    = path.join(__dirname, 'activity_log.json');
 const USERS_FILE  = path.join(__dirname, 'users.json');
 const TG_FILE     = path.join(__dirname, 'tg_sessions.json');
-if (process.env.TG_SESSIONS) {
-  try { 
-    fs.writeFileSync(TG_FILE, process.env.TG_SESSIONS); 
-  } catch {}
-}
 const BACKUP_DIR  = path.join(__dirname, 'backups');
 
 if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
@@ -291,28 +286,30 @@ app.post('/api/user/setpin', async (req, res) => {
   }
 });
 
-// FIX: Admin also needs to be able to verify PIN
-// Admin PIN is stored directly — admin uses App Password not bcrypt PIN
 app.post('/api/user/verifypin', async (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Not logged in' });
   const { pin } = req.body;
   const email   = req.session.googleUser?.email || req.session.gmailUser;
+  const u       = users.find(u => u.email === email);
 
-  // Admin uses a fixed PIN stored in env — default 0204
+  // If user has a bcrypt PIN set (admin or regular user), verify with bcrypt first
+  if (u && u.pin) {
+    try {
+      const match = await bcrypt.compare(String(pin), u.pin);
+      if (match) return res.json({ valid: true });
+    } catch {}
+  }
+
+  // Admin fallback: check env var PIN (allows admin to work without setting bcrypt PIN)
   if (req.session.userRole === 'admin') {
-    const adminPin = process.env.ADMIN_PIN || '0204';
-    return res.json({ valid: String(pin) === String(adminPin) });
+    const adminPin = process.env.ADMIN_PIN || '0413';
+    if (String(pin) === String(adminPin)) return res.json({ valid: true });
+    return res.json({ valid: false });
   }
 
-  const u = users.find(u => u.email === email);
-  if (!u || !u.pin) return res.json({ valid: false, error: 'No PIN set for this user' });
-
-  try {
-    const match = await bcrypt.compare(String(pin), u.pin);
-    res.json({ valid: match });
-  } catch {
-    res.json({ valid: false });
-  }
+  // Regular user with no PIN set
+  if (!u || !u.pin) return res.json({ valid: false, error: 'No PIN set. Please set your PIN first.' });
+  return res.json({ valid: false });
 });
 
 // ── ADMIN LOGIN via IMAP ──
@@ -622,6 +619,24 @@ function doImapFetch(imap, box, limit, resolve, reject) {
 app.post('/api/ai/suggest', async (req, res) => {
   const { emailContent, sender, subject } = req.body;
   res.json({ suggestions: await getAISuggestions(emailContent, sender, subject) });
+});
+
+// ── ADD PUNCTUATION TO VOICE TEXT ──
+app.post('/api/ai/punctuate', async (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.json({ result: text });
+  if (!config.ANTHROPIC_API_KEY) return res.json({ result: text });
+  try {
+    const r = await axios.post('https://api.anthropic.com/v1/messages', {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      system: 'You add correct punctuation (commas, full stops, question marks) to voice-to-text input. Return ONLY the corrected text with punctuation added. Do not change any words. Do not add any explanation.',
+      messages: [{ role: 'user', content: text }]
+    }, { headers: { 'x-api-key': config.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' }, timeout: 15000 });
+    res.json({ result: r.data.content[0].text.trim() });
+  } catch {
+    res.json({ result: text });
+  }
 });
 
 // ── AI BOT CHAT ──

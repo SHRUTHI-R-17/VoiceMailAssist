@@ -174,7 +174,9 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
 .esubj-big{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;line-height:1.3;margin-bottom:4px;}
 .efrom-row{font-size:10px;color:var(--muted);}
 .esummary{font-size:11px;background:rgba(124,58,237,.07);border-left:3px solid var(--purple);padding:8px 10px;margin:8px 14px;border-radius:4px;line-height:1.7;color:var(--text);}
-.ebody{flex:1;padding:12px 14px;overflow-y:auto;font-size:12px;line-height:1.7;color:#cbd5e1;}
+body.light .esummary{background:rgba(124,58,237,.08);color:#111827!important;font-weight:500;}
+.ebody{flex:1;padding:12px 14px;overflow-y:auto;font-size:12px;line-height:1.7;color:var(--text);}
+body.light .ebody{color:#1e293b;}
 .ai-box{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;}
 .ai-box-title{font-size:9px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
 .air{padding:6px 9px;border-radius:7px;border:1px solid var(--border);font-size:10px;color:var(--text);cursor:pointer;transition:all .2s;line-height:1.4;margin-bottom:3px;display:flex;align-items:flex-start;gap:5px;}
@@ -244,7 +246,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
 .export-btn{padding:5px 10px;border-radius:7px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;border:none;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 
 /* ── MODALS & OVERLAYS ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:400;display:none;align-items:center;justify-content:center;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:500;display:none;align-items:center;justify-content:center;}
 .overlay.show{display:flex;}
 .conf-box{background:var(--card);border:2px solid var(--yellow);border-radius:20px;width:380px;padding:24px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;}
 .conf-ico{font-size:36px;}
@@ -261,14 +263,39 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
 .pin-sub{font-size:12px;color:var(--muted);line-height:1.5;}
 .pin-voice{width:100%;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;}
 .pin-status{font-size:13px;color:var(--cyan);font-weight:600;min-height:20px;}
-.pin-attempts{font-size:11px;color:var(--red);min-height:14px;}
+.pin-attempts{font-size:11px;color:var(--red);min-height:14px;font-weight:600;}
 .pin-cancel{font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'DM Sans',sans-serif;}
 .sess-box{background:var(--card);border:2px solid var(--yellow);border-radius:20px;width:380px;padding:28px;text-align:center;display:flex;flex-direction:column;gap:14px;}
 .sess-ico{font-size:40px;}
 .sess-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--yellow);}
 .sess-btn{padding:11px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;}
 
-/* ── AI BOT PANEL ── */
+/* ── COMPOSE MODAL ── */
+.compose-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:460;display:none;align-items:center;justify-content:center;}
+.compose-overlay.show{display:flex;}
+.compose-box{background:var(--card);border:2px solid var(--purple);border-radius:22px;width:540px;max-width:96vw;max-height:92vh;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+.compose-header{display:flex;align-items:center;gap:12px;}
+.compose-header-ico{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.compose-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;flex:1;}
+.compose-steps{display:flex;gap:7px;align-items:center;}
+.cstep{width:11px;height:11px;border-radius:50%;background:var(--border);transition:all .3s;}
+.cstep.active{background:var(--purple);transform:scale(1.25);box-shadow:0 0 8px rgba(124,58,237,.6);}
+.cstep.done{background:var(--green);}
+.compose-voice-bar{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:12px;padding:13px 16px;font-size:13px;color:var(--cyan);min-height:50px;display:flex;align-items:center;gap:10px;line-height:1.5;}
+.cvb-dot{width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;animation:blink .6s infinite;}
+.cvb-dot.speaking{background:var(--purple);animation:blink .9s infinite;}
+.cvb-dot.idle{background:var(--muted);animation:none;}
+.compose-field{display:flex;flex-direction:column;gap:5px;}
+.compose-field label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;}
+.compose-field input,.compose-field textarea{background:var(--panel);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:13px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s,background .2s;resize:none;width:100%;}
+.compose-field input:focus,.compose-field textarea:focus{border-color:var(--purple);background:rgba(124,58,237,.04);}
+.compose-field input.filled{border-color:var(--green);background:rgba(16,185,129,.04);}
+.compose-field input.active-field,.compose-field textarea.active-field{border-color:var(--purple);background:rgba(124,58,237,.05);}
+.compose-step-label{font-size:11px;color:var(--muted);background:var(--panel);border-left:3px solid var(--purple);padding:8px 12px;border-radius:0 6px 6px 0;line-height:1.6;}
+.compose-btns{display:flex;gap:10px;margin-top:4px;}
+.compose-next{flex:1;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.3px;transition:opacity .2s;}
+.compose-next:hover{opacity:.9;}
+.compose-cancel-btn{padding:13px 22px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 #aiPanel{position:fixed;bottom:60px;right:16px;width:320px;background:var(--card);border:1px solid var(--purple);border-radius:16px;flex-direction:column;z-index:350;box-shadow:0 8px 32px rgba(0,0,0,.5);max-height:420px;display:none;}
 #aiPanel.open{display:flex;}
 .aip-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -333,7 +360,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
   <div class="pin-box" id="pinBox">
     <div class="pin-ico" id="pinIco">🔐</div>
     <div class="pin-title" id="pinTitle">PIN Verification</div>
-    <div class="pin-sub" id="pinSub">Say your 4-digit PIN</div>
+    <div class="pin-sub" id="pinSub">Say your 4-digit PIN to confirm sending.</div>
     <div class="pdots" id="pinDots">
       <div class="pd" id="pd0"></div><div class="pd" id="pd1"></div>
       <div class="pd" id="pd2"></div><div class="pd" id="pd3"></div>
@@ -342,8 +369,58 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="pin-voice">
       <div style="font-size:28px" id="pinVIco">🎙️</div>
       <div class="pin-status" id="pinStatus">Listening for your PIN…</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Say your four digits clearly one by one</div>
     </div>
     <button class="pin-cancel" onclick="cancelPin()">Cancel — Don't Send</button>
+  </div>
+</div>
+
+<!-- ════ COMPOSE EMAIL MODAL ════ -->
+<div class="compose-overlay" id="composeOverlay">
+  <div class="compose-box">
+    <div class="compose-header">
+      <div class="compose-header-ico">📧</div>
+      <div class="compose-title">Compose Email</div>
+      <div class="compose-steps">
+        <div class="cstep active" id="cs1"></div>
+        <div class="cstep" id="cs2"></div>
+        <div class="cstep" id="cs3"></div>
+      </div>
+    </div>
+
+    <!-- Live voice display — shows what system heard -->
+    <div class="compose-voice-bar" id="composeVoiceBar">
+      <div class="cvb-dot" id="cvbDot"></div>
+      <span id="composeVoiceText">Say the recipient email address…</span>
+    </div>
+
+    <!-- Step label -->
+    <div class="compose-step-label" id="composeStepLabel">
+      Step 1 of 3 — Say or type the recipient email address, then click Next.
+    </div>
+
+    <!-- STEP 1: To -->
+    <div class="compose-field" id="cFieldTo">
+      <label>To — Recipient Email</label>
+      <input type="email" id="composeTo_input" placeholder="Recipient email address" autocomplete="off" oninput="composeTo=this.value"/>
+    </div>
+
+    <!-- STEP 2: Subject (hidden until step 2) -->
+    <div class="compose-field" id="cFieldSub" style="display:none">
+      <label>Subject</label>
+      <input type="text" id="composeSub_input" placeholder="Email subject…" oninput="composeSub=this.value"/>
+    </div>
+
+    <!-- STEP 3: Message (hidden until step 3) -->
+    <div class="compose-field" id="cFieldBody" style="display:none">
+      <label>Message</label>
+      <textarea id="composeBody_input" rows="5" placeholder="Your message…" oninput="composeBody=this.value"></textarea>
+    </div>
+
+    <div class="compose-btns">
+      <button class="compose-next" id="composeNextBtn" onclick="composeNext()">Next →</button>
+      <button class="compose-cancel-btn" onclick="composeCancel()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -374,15 +451,15 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
     <div class="home-left">
       <div class="brand-row">
         <div class="brand-ico">✉️</div>
-        <div><div class="brand-name">VoiceMailAssist</div><div class="brand-sub">Voice-first · Secure · Intelligent</div></div>
+        <div><div class="brand-name">Voice_Assist</div><div class="brand-sub">Voice-first · Secure · Intelligent</div></div>
       </div>
-      <div class="hero-h">Your mail,<br><span style="color:var(--purple)">completely</span><br><span style="color:var(--cyan)">hands-</span><span style="color:var(--green)">free.</span></div>
+      <div class="hero-h">Your inbox,<br><span style="color:var(--purple)">completely</span><br><span style="color:var(--cyan)">hands-</span><span style="color:var(--green)">free.</span></div>
       <p class="hero-p">Control Gmail and Telegram entirely by voice with multi-layer security. Built for blind users and sighted users equally.</p>
       <ul class="feat-list">
         <li>🎙️ <b>Always-on mic</b> — fully hands-free after first click</li>
         <li>📧 <b>Gmail voice control</b> — read, send, count, clear trash</li>
         <li>✈️ <b>Real Telegram chats</b> — your personal account</li>
-        <li>🤖 <b>AI summaries &amp; replies</b> — Claude reads emails aloud</li>
+        <li>🤖 <b>AI summaries &amp; replies</b> — System reads emails aloud</li>
         <li>🖼️ <b>Image reading</b> — AI reads images inside emails</li>
         <li>🔒 <b>3-layer security</b> — Login → Confirm → PIN</li>
       </ul>
@@ -400,7 +477,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
       <div class="home-btns">
         <button class="hbtn hbtn-admin" onclick="navTo('adminLogin')">
           <span class="hbtn-ico">🛡️</span>
-          <span class="hbtn-txt"><div class="hbtn-lbl">Admin Login</div><div class="hbtn-sub">IMAP + App Password</div></span>
+          <span class="hbtn-txt"><div class="hbtn-lbl">Admin Login</div><div class="hbtn-sub">App Password</div></span>
           <span>→</span>
         </button>
         <button class="hbtn hbtn-user" onclick="navTo('userLogin')">
@@ -443,7 +520,7 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);hei
         </div>
         <div class="step-box" id="alStep2" style="display:none">
           <div class="step-lbl">Step 2 — App Password</div>
-          <div class="step-val" id="alPwVal">Waiting for email first…</div>
+          <div class="step-val" id="alPwVal"></div>
         </div>
         <div class="pw-wrap">
           <label>App Password (type or spoken)</label>
@@ -1020,17 +1097,21 @@ function makeReadable(text){
     // Strip full URLs first — never read them aloud
     .replace(/https?:\/\/[^\s<>"')]+/gi,' ')
     .replace(/www\.[^\s<>"')]+/gi,' ')
-    // Email addresses — pronounce correctly
+    // Time abbreviations — no pause dots
+    .replace(/\bp\.m\./gi,'pm').replace(/\ba\.m\./gi,'am')
+    .replace(/\bP\.M\./g,'pm').replace(/\bA\.M\./g,'am')
+    // Email addresses — pronounce every part correctly including dots in username
     .replace(/([a-zA-Z0-9._%+\-]+)@([a-zA-Z0-9.\-]+)\.([a-zA-Z]{2,})/g,(m,u,domain,tld)=>{
       const us=u.replace(/\./g,' dot ').replace(/_/g,' underscore ').replace(/-/g,' dash ').replace(/\+/g,' plus ');
       const d=domain.replace(/\./g,' dot ').replace(/-/g,' dash ');
       return `${us} at ${d} dot ${tld}`;
     })
-    // Domain endings standing alone
+    // Standalone domain endings — pronounce the dot
     .replace(/\.com\b/gi,' dot com').replace(/\.in\b/gi,' dot in')
     .replace(/\.org\b/gi,' dot org').replace(/\.net\b/gi,' dot net')
     .replace(/\.co\b/gi,' dot co').replace(/\.io\b/gi,' dot io')
-    // Symbols
+    .replace(/\.edu\b/gi,' dot edu').replace(/\.gov\b/gi,' dot gov')
+    // Symbols → words
     .replace(/&amp;/g,' and ').replace(/&/g,' and ')
     .replace(/#/g,' number ').replace(/%/g,' percent ')
     .replace(/\*/g,' ').replace(/</g,' ').replace(/>/g,' ')
@@ -1199,7 +1280,7 @@ function speak(text,onDone){
 }
 
 function killMic(){
-  pinListening=false;
+  // NOTE: Do NOT reset pinListening here — PIN state must survive mic restart
   if(recog){try{recog.abort();}catch{}recog=null;}
   if(vs===VS.LISTENING)setVS(VS.IDLE);
 }
@@ -1325,7 +1406,10 @@ function navTo(p){
     psStep='pin1';
     speak(L.sayPin,()=>startMic());
   } else if(p==='lang'){
-    speak('Choose your language. Say English, Tamil, or Hindi.',()=>startMic());
+    // Clear any previous selection — user must pick fresh every login
+    ['lcEn','lcTa','lcHi'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+    const welcomeMsg=lang==='ta'?'மொழி தேர்வு. ஆங்கிலம், தமிழ் அல்லது இந்தி என்று சொல்லுங்கள்.':lang==='hi'?'भाषा चुनें। English, Tamil, या Hindi कहें।':'Welcome! Choose your language. Say English, Tamil, or Hindi. Or click a card below.';
+    speak(welcomeMsg,()=>startMic());
   } else if(p==='email'){
     document.getElementById('emailPill').textContent=user?.email||'';
     loadEmails();
@@ -1490,18 +1574,33 @@ async function fetchLatestEmail(section){
     if(!d.email){speak(L.noEmail,()=>startMic());return;}
     const em=d.email;
     aiReplies=em.replies||[];
-    pendingReply={to:em.from,subject:'Re: '+em.subject};
+
+    // Fix Issue 2: extract clean email address for reply-to
+    const rawFrom=em.from||'';
+    const fromEmailMatch=rawFrom.match(/<([^>]+)>/);
+    const cleanFromEmail=fromEmailMatch?fromEmailMatch[1]:rawFrom.trim();
+    pendingReply={to:cleanFromEmail,subject:'Re: '+em.subject};
+
     showEmailDetail(em);
-    const fn=makeReadable(em.from.split('<')[0].trim().replace(/"/g,''));
+
+    // Always read FROM + SUBJECT + all available content
+    const fn=makeReadable(rawFrom.split('<')[0].trim().replace(/"/g,'')||cleanFromEmail);
     const subj=makeReadable(em.subject);
-    const summary=makeReadable(em.summary||'');
-    const imgNote=em.hasImage&&em.imageText?' Image in email says: '+makeReadable(em.imageText)+'.':'';
-    const fullSpeak=`${L.readingFrom(fn,subj)} ${summary}${imgNote}`;
+
+    // Build content: prefer summary, fall back to snippet/body — always speak something
+    const summaryRaw=(em.summary||'').replace(/https?:\/\/\S+/gi,'').replace(/www\.\S+/gi,'').replace(/\s+/g,' ').trim();
+    const bodyRaw=stripLinks(em.snippet||em.body||'').replace(/\s+/g,' ').trim();
+    // Use summary if it exists (any length), else use body, else say no content
+    const contentToRead=summaryRaw||bodyRaw.slice(0,200)||'No readable content in this email.';
+    const imgNote=em.hasImage&&em.imageText?' Image shows: '+makeReadable(em.imageText.replace(/https?:\/\/\S+/gi,'').trim())+'.':'';
+
+    // Speak: FROM name, SUBJECT, then full content
+    const fullSpeak=`${L.readingFrom(fn,subj)} ${makeReadable(contentToRead)}${imgNote}`;
     speak(fullSpeak,()=>{
       if(aiReplies.length){
         speak(L.askReply(aiReplies),()=>startMic());
       } else {
-        speak('No reply suggestions available. Say send email to compose a new email.',()=>startMic());
+        speak('No reply suggestions. Say own reply to write your own response.',()=>startMic());
       }
     });
   } catch(e){
@@ -1531,14 +1630,19 @@ function showEmailDetail(em){
     </div>`;
 }
 
-// Called when user clicks "Read Email Aloud" button or says "read email"
+// Called when user clicks "Read Email Aloud" button
 function voiceReadEmail(){
   const em=emails[selEmail];
   if(!em){speak('No email selected.',()=>startMic());return;}
-  const fn=makeReadable(em.from.split('<')[0].trim().replace(/"/g,''));
+  const rawFrom=em.from||'';
+  const displayName=rawFrom.split('<')[0].trim().replace(/"/g,'');
+  const fromEmailMatch=rawFrom.match(/<([^>]+)>/);
+  const cleanEmail=fromEmailMatch?fromEmailMatch[1]:rawFrom.trim();
+  // Use display name if available, else use email address
+  const fn=makeReadable(displayName||cleanEmail);
   const subj=makeReadable(em.subject);
   const body=makeReadable(stripLinks(em.body||em.snippet||'').slice(0,400));
-  speak(`From ${fn}. Subject: ${subj}. ${body}`,()=>startMic());
+  speak(`Email from ${fn}. Subject: ${subj}. ${body}`,()=>startMic());
 }
 
 // Called when user clicks "Read Reply Suggestions" button
@@ -1569,17 +1673,27 @@ async function clickEmail(idx){
     const r=await fetch('/api/ai/suggest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emailContent:em.body,sender:em.from,subject:em.subject})});
     const d=await r.json();
     aiReplies=d.suggestions||[];
-    pendingReply={to:em.from,subject:'Re: '+em.subject};
+
+    // Fix Issue 2: Always extract clean email address for reply-to
+    const rawFrom=em.from||'';
+    const fromEmailMatch=rawFrom.match(/<([^>]+)>/);
+    const cleanFromEmail=fromEmailMatch?fromEmailMatch[1]:rawFrom.trim();
+    pendingReply={to:cleanFromEmail,subject:'Re: '+em.subject,originalFrom:rawFrom};
+
     hideLoader();
     const cleanBody=stripLinks(em.body||em.snippet||'');
     showEmailDetail({...em,summary:em.snippet||em.body?.slice(0,200)||'',hasImage:false,imageText:'',body:cleanBody});
-    // Auto-read aloud
-    const fn=makeReadable(em.from.split('<')[0].trim().replace(/"/g,''));
+
+    // Always read FROM + SUBJECT + all body content
+    const fn=makeReadable(rawFrom.split('<')[0].trim().replace(/"/g,'')||cleanFromEmail);
     const subj=makeReadable(em.subject);
-    const bodySpeak=makeReadable(cleanBody.slice(0,300));
-    speak(`Email from ${fn}. Subject: ${subj}. ${bodySpeak}`,()=>{
+    // Use body if available, else snippet — always speak something meaningful
+    const bodyContent=cleanBody.replace(/\s+/g,' ').trim();
+    const contentToRead=bodyContent||em.snippet||'No readable content.';
+
+    speak(`Email from ${fn}. Subject: ${subj}. ${makeReadable(contentToRead.slice(0,250))}`,()=>{
       if(aiReplies.length)speak(L.askReply(aiReplies),()=>startMic());
-      else startMic();
+      else speak('Say own reply to write your own response.',()=>startMic());
     });
   } catch{hideLoader();startMic();}
 }
@@ -1629,13 +1743,212 @@ async function doTrash(){
   } catch{hideLoader();speak('Error clearing trash.',()=>startMic());}
 }
 
+
 // ═══════════════════════════════════════════════════════════════
-//  EMAIL — SEND COMPOSE FLOW
+//  COMPOSE EMAIL — STEP BY STEP VOICE WORKFLOW
+//
+//  Step 1: Ask → hear email    → show in field → confirm
+//  Step 2: Ask → hear subject  → show in field → confirm  
+//  Step 3: Ask → hear message  → show in field → confirm
+//  Then  : Speak full summary  → Confirm overlay → PIN → Send
 // ═══════════════════════════════════════════════════════════════
-function startCompose(){
-  composeStep=1;composeTo='';composeSub='';composeBody='';
-  speak('Compose email. What is the recipient email address?',()=>startMic());
+
+function cvVoice(msg){
+  const el=document.getElementById('composeVoiceText');
+  if(el)el.textContent=msg;
 }
+function cvStep(msg){
+  const el=document.getElementById('composeStepLabel');
+  if(el)el.textContent=msg;
+}
+function cvDots(a,b,c){
+  [['cs1',a],['cs2',b],['cs3',c]].forEach(([id,cls])=>{
+    const el=document.getElementById(id);
+    if(el)el.className='cstep'+(cls?' '+cls:'');
+  });
+}
+function cvInput(id,val,cls){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(val!==undefined)el.value=val;
+  if(cls!==undefined)el.className=cls;
+}
+function cvShowFields(n){
+  // n=1: only email, n=2: email+subject, n=3: all
+  document.getElementById('cFieldTo').style.display='flex';
+  document.getElementById('cFieldSub').style.display=n>=2?'flex':'none';
+  document.getElementById('cFieldBody').style.display=n>=3?'flex':'none';
+}
+
+// Open compose dialog — full reset every time
+function startCompose(){
+  composeStep=1; composeTo=''; composeSub=''; composeBody='';
+  cvInput('composeTo_input','','');
+  cvInput('composeSub_input','','');
+  cvInput('composeBody_input','','');
+  cvDots('active','','');
+  cvShowFields(1);
+  document.getElementById('composeNextBtn').textContent='Next →';
+  document.getElementById('composeOverlay').classList.add('show');
+  cvVoice('🎙️ Waiting…');
+  cvStep('Step 1 of 3 — Speak the recipient email address.');
+  // Speak then listen
+  speak('Compose email. Step 1. Say the recipient email address.',()=>{
+    cvVoice('🔴 Listening… say the email address.');
+    startMic();
+  });
+}
+
+// Called by Next button or after yes-confirm at each step
+function composeNext(){
+  if(composeStep===1||composeStep==='1c'){
+    const v=(document.getElementById('composeTo_input').value||'').trim();
+    if(v)composeTo=v;
+    if(!composeTo||!composeTo.includes('@')){
+      cvVoice('⚠️ No email address yet. Say it or type it.');
+      speak('Please say the recipient email address.',()=>startMic());
+      return;
+    }
+    cvInput('composeTo_input',composeTo,'filled');
+    cvDots('done','active','');
+    cvShowFields(2);
+    cvInput('composeSub_input','','active-field');
+    composeStep=2;
+    document.getElementById('composeNextBtn').textContent='Next →';
+    cvStep('Step 2 of 3 — Speak the email subject.');
+    speak('Email saved. Step 2. Now say the email subject.',()=>{
+      cvVoice('🔴 Listening… say the subject.');
+      startMic();
+    });
+
+  }else if(composeStep===2||composeStep==='2c'){
+    const v=(document.getElementById('composeSub_input').value||'').trim();
+    if(v)composeSub=v;
+    if(!composeSub){
+      cvVoice('⚠️ No subject yet. Say it or type it.');
+      speak('Please say the email subject.',()=>startMic());
+      return;
+    }
+    cvInput('composeSub_input',composeSub,'filled');
+    cvDots('done','done','active');
+    cvShowFields(3);
+    cvInput('composeBody_input','','active-field');
+    composeStep=3;
+    document.getElementById('composeNextBtn').textContent='Send →';
+    cvStep('Step 3 of 3 — Speak your message.');
+    speak('Subject saved. Step 3. Now say your message.',()=>{
+      cvVoice('🔴 Listening… say your message.');
+      startMic();
+    });
+
+  }else if(composeStep===3||composeStep==='3c'){
+    const v=(document.getElementById('composeBody_input').value||'').trim();
+    if(v)composeBody=v;
+    if(!composeBody){
+      cvVoice('⚠️ No message yet. Say it or type it.');
+      speak('Please say your message.',()=>startMic());
+      return;
+    }
+    cvInput('composeBody_input',composeBody,'filled');
+    cvDots('done','done','done');
+    composeStep=0;
+    document.getElementById('composeOverlay').classList.remove('show');
+    // Speak summary once — triggerConfirm will then speak confirmSend prompt once
+    const display='To: '+composeTo+'\nSubject: '+composeSub+'\nMessage: '+composeBody;
+    const spoken='Message ready. Sending to '+makeReadable(composeTo)+'. Subject: '+makeReadable(composeSub)+'. Message: '+composeBody+'.';
+    speak(spoken,()=>triggerConfirm(display,()=>doSendEmail(composeTo,composeSub,composeBody)));
+  }
+}
+
+function composeCancel(){
+  composeStep=0; composeTo=''; composeSub=''; composeBody='';
+  document.getElementById('composeOverlay').classList.remove('show');
+  speak(L.cancelled,()=>startMic());
+}
+
+// Called from handleCmd when composeStep is active — routes voice to right step
+function handleCompose(cmd){
+  if(/\bcancel\b|ரத்து|रद्द/.test(cmd)){composeCancel();return;}
+
+  // STEP 1 — capture email
+  if(composeStep===1){
+    const em=spokenToEmail(cmd);
+    if(em&&em.includes('@')&&em.includes('.')){
+      composeTo=em;
+      cvInput('composeTo_input',em,'active-field');
+      cvVoice('✅ I heard: '+makeReadable(em));
+      speak('I heard '+makeReadable(em)+'. Say yes correct to confirm or no wrong to say again.',()=>startMic());
+      composeStep='1c';
+    }else{
+      cvVoice('⚠️ Could not get email. Say like: john dot smith at gmail dot com');
+      speak('I could not understand that email address. Please say it again.',()=>startMic());
+    }
+    return;
+  }
+  if(composeStep==='1c'){
+    if(isYes(cmd)){composeNext();}
+    else if(isNo(cmd)){
+      composeStep=1; composeTo='';
+      cvInput('composeTo_input','','');
+      cvVoice('🔴 Say the email address again.');
+      speak('Say the recipient email address again.',()=>startMic());
+    }else speak('Say yes correct to confirm or no wrong to say again.',()=>startMic());
+    return;
+  }
+
+  // STEP 2 — capture subject
+  if(composeStep===2){
+    composeSub=cmd.trim();
+    cvInput('composeSub_input',composeSub,'active-field');
+    cvVoice('✅ I heard subject: "'+composeSub+'"');
+    speak('I heard subject: '+makeReadable(composeSub)+'. Say yes correct to confirm or no wrong to say again.',()=>startMic());
+    composeStep='2c';
+    return;
+  }
+  if(composeStep==='2c'){
+    if(isYes(cmd)){composeNext();}
+    else if(isNo(cmd)){
+      composeStep=2; composeSub='';
+      cvInput('composeSub_input','','active-field');
+      cvVoice('🔴 Say the subject again.');
+      speak('Say the email subject again.',()=>startMic());
+    }else speak('Say yes correct to confirm or no wrong to say again.',()=>startMic());
+    return;
+  }
+
+  // STEP 3 — capture message
+  if(composeStep===3){
+    const raw=cmd.trim();
+    // Add punctuation via AI before confirming
+    fetch('/api/ai/punctuate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:raw})})
+      .then(r=>r.json()).then(d=>{
+        composeBody=d.result||raw;
+        cvInput('composeBody_input',composeBody,'active-field');
+        const preview=composeBody.length>60?composeBody.slice(0,60)+'…':composeBody;
+        cvVoice('✅ I heard: "'+preview+'"');
+        speak('I heard: '+composeBody.slice(0,80)+'. Say yes correct to confirm or no wrong to say again.',()=>startMic());
+        composeStep='3c';
+      }).catch(()=>{
+        composeBody=raw;
+        cvInput('composeBody_input',composeBody,'active-field');
+        cvVoice('✅ I heard: "'+raw.slice(0,60)+'"');
+        speak('I heard: '+raw.slice(0,80)+'. Say yes correct to confirm or no wrong to say again.',()=>startMic());
+        composeStep='3c';
+      });
+    return;
+  }
+  if(composeStep==='3c'){
+    if(isYes(cmd)){composeNext();}
+    else if(isNo(cmd)){
+      composeStep=3; composeBody='';
+      cvInput('composeBody_input','','active-field');
+      cvVoice('🔴 Say your message again.');
+      speak('Say your message again.',()=>startMic());
+    }else speak('Say yes correct to confirm or no wrong to say again.',()=>startMic());
+    return;
+  }
+}
+
 
 // ═══════════════════════════════════════════════════════════════
 //  EMAIL — SEND
@@ -1659,6 +1972,7 @@ function triggerConfirm(desc,onConfirmed){
   pendingCB=onConfirmed;awaitConfirm=true;
   document.getElementById('confMsg').textContent=desc;
   document.getElementById('confOverlay').classList.add('show');
+  // Speak ONCE only — no duplicate
   speak(L.confirmSend,()=>startMic());
 }
 
@@ -1827,14 +2141,23 @@ let tgVoicePhoneActive=false;
 let tgVoiceOtpActive=false;
 let tgVoicePhoneDigits='';
 
+// Silent disconnect — resets state without speaking (used when re-connecting)
+function tgDisconnectSilent(){
+  const key='tg_ok_'+(user?.email||'');
+  localStorage.removeItem(key);
+  selChat=null;tgChats=[];
+  const list=document.getElementById('tgList');
+  if(list)list.innerHTML='';
+}
+
 function tgVoiceNumber(){
   tgVoicePhoneDigits='';
   tgVoicePhoneActive=true;
   tgVoiceOtpActive=false;
   document.getElementById('tgPhone').value='';
-  document.getElementById('tgPhoneVoiceBox').textContent='🔴 Listening… say your 10 digits one by one';
-  document.getElementById('tgPhoneVoiceBox').style.color='var(--red)';
-  speak('Say your 10 digit mobile number now. Say each digit clearly.',()=>startMic());
+  const vb=document.getElementById('tgPhoneVoiceBox');
+  if(vb){vb.textContent='🔴 Listening… say your 10 digits one by one';vb.style.color='var(--red)';}
+  speak('Say your 10 digit mobile number now. Say each digit clearly, one by one.',()=>startMic());
 }
 
 function tgVoiceOtp(){
@@ -1861,14 +2184,24 @@ function tgDisconnect(){
   const key='tg_ok_'+(user?.email||'');
   localStorage.removeItem(key);
   selChat=null;tgChats=[];
-  document.getElementById('tgChatSection').style.display='none';
-  document.getElementById('tgLoginSection').style.display='flex';
+  // Force chat section completely hidden
+  const chatSec=document.getElementById('tgChatSection');
+  if(chatSec){chatSec.style.display='none';chatSec.style.flex='';chatSec.style.width='';}
+  // Show login section
+  const loginSec=document.getElementById('tgLoginSection');
+  if(loginSec){loginSec.style.display='flex';loginSec.style.flex='1';}
   document.getElementById('tgPhoneStep').style.display='block';
   document.getElementById('tgOtpStep').style.display='none';
   document.getElementById('tgPhone').value='';
   document.getElementById('tgOtp').value='';
   document.getElementById('tgError').style.display='none';
-  speak('Disconnected. Enter your phone number to reconnect.',()=>startMic());
+  const list=document.getElementById('tgList');
+  if(list)list.innerHTML='';
+  const col=document.getElementById('tgChatCol');
+  if(col)col.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted)"><div style="font-size:28px;opacity:.2">✈️</div><div style="font-size:11px">Select a contact or say "open [name]"</div></div>';
+  if(lang==='ta') speak('Telegram துண்டிக்கப்பட்டது. மீண்டும் இணைக்க உங்கள் தொலைபேசி எண்ணை சொல்லுங்கள்.',()=>startMic());
+  else if(lang==='hi') speak('Telegram डिसकनेक्ट हो गया। फिर से जोड़ने के लिए नंबर डालें।',()=>startMic());
+  else speak('Telegram disconnected. Enter your phone number to connect again.',()=>startMic());
 }
 
 async function loadTgChats(){
@@ -1989,8 +2322,35 @@ async function sendAI(){
   inp.value='';inp.placeholder='Type or say anything…';
   addAIMsg(msg,'u');
 
+  // For navigation/command questions — answer immediately from local knowledge
+  // This is always accurate and instant, no server round-trip needed
+  const m=msg.toLowerCase();
+  if(/open telegram|how.*telegram|go.*telegram|navigate.*telegram|switch.*telegram|telegram.*open|how.*open telegram/.test(m)){
+    const r=lang==='ta'?'"open telegram" என்று சொல்லுங்கள், அல்லது மேலே Telegram பொத்தானை கிளிக் செய்யுங்கள்.':lang==='hi'?'"open telegram" कहें, या ऊपर Telegram बटन दबाएं।':'Say "open telegram" — or click the Telegram button at the top of the page.';
+    aiHistory.push({role:'user',content:msg},{role:'assistant',content:r});
+    addAIMsg(r,'b');speak(r,()=>startMic());return;
+  }
+  if(/open gmail|open email|how.*gmail|go.*gmail|navigate.*gmail/.test(m)){
+    const r=lang==='ta'?'"open gmail" என்று சொல்லுங்கள், அல்லது மேலே Email பொத்தானை கிளிக் செய்யுங்கள்.':lang==='hi'?'"open gmail" कहें, या ऊपर Email बटन दबाएं।':'Say "open gmail" — or click the Email button at the top of the page.';
+    aiHistory.push({role:'user',content:msg},{role:'assistant',content:r});
+    addAIMsg(r,'b');speak(r,()=>startMic());return;
+  }
+  if(/command|what can|help|how do i|how to/.test(m)){
+    const r=getLocalAIReply(msg);
+    aiHistory.push({role:'user',content:msg},{role:'assistant',content:r});
+    addAIMsg(r,'b');speak(r,()=>startMic());return;
+  }
+
   const langName=lang==='ta'?'Tamil':lang==='hi'?'Hindi':'English';
-  const systemCtx=`Language: ${langName}. User: ${user?.name||user?.email||'User'}. Role: ${role}. Reply in ${langName} in 1-2 short sentences. Be warm and helpful like Siri or Alexa. Never say sorry or I cannot.`;
+  const pageCtx=page==='email'?'user is on the Email/Gmail page':page==='telegram'?'user is on the Telegram page':page==='admin'?'user is on Admin page':'user is on home page';
+  const emailCtx=emails.length>0?`User has ${emails.length} emails, ${emails.filter(e=>!e.read).length} unread.`:'No emails loaded.';
+  const tgCtx=tgChats.length>0?`User has ${tgChats.length} Telegram chats.`:'Telegram not connected.';
+  const systemCtx=`You are VoiceAssist, a voice AI assistant inside an email and Telegram voice app.
+CRITICAL LANGUAGE RULE: Reply ONLY in ${langName}. Every single word of your answer must be in ${langName}. If ${langName} is Tamil, reply only in Tamil script. If ${langName} is Hindi, reply only in Hindi script.
+Context: ${pageCtx}. ${emailCtx} ${tgCtx} User: ${user?.name||user?.email||'User'}.
+Voice commands: On email: "read latest email", "count emails", "send email", "clear trash", "reply one/two/three", "own reply". On telegram: "open [name]", "read chat", "reply chat", "own reply", "logout telegram". Navigation: "open gmail", "open telegram", "open admin".
+For ANY navigation question (how to open telegram, how to go to email, etc.) give the exact voice command to say.
+Reply in 1-2 short clear sentences. Never say sorry. Never say I cannot help.`;
 
   try{
     const r=await fetch('/api/ai/chat',{
@@ -2012,40 +2372,6 @@ async function sendAI(){
   }
 }
 
-// Local fallback AI responses — never says "Sorry"
-function getLocalAIReply(msg){
-  const m=msg.toLowerCase();
-  if(/email|mail/.test(m)){
-    if(lang==='ta')return 'மின்னஞ்சல் பக்கத்திற்கு செல்ல "open gmail" சொல்லுங்கள்.';
-    if(lang==='hi')return 'ईमेल देखने के लिए "open gmail" कहें।';
-    return 'Say "read latest email" to check your inbox, or "count emails" to see totals.';
-  }
-  if(/telegram|message|chat/.test(m)){
-    if(lang==='ta')return 'Telegram-க்கு செல்ல "open telegram" சொல்லுங்கள்.';
-    if(lang==='hi')return 'Telegram के लिए "open telegram" कहें।';
-    return 'Say "open telegram" to access your chats.';
-  }
-  if(/time|what time|clock/.test(m)){
-    const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    if(lang==='ta')return `இப்போது ${t} ஆகிறது.`;
-    if(lang==='hi')return `अभी ${t} बज रहे हैं।`;
-    return `It is currently ${t}.`;
-  }
-  if(/date|today|what day/.test(m)){
-    const dt=new Date().toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    if(lang==='ta')return `இன்று ${dt}.`;
-    if(lang==='hi')return `आज ${dt} है।`;
-    return `Today is ${dt}.`;
-  }
-  if(/hello|hi|hey/.test(m)){
-    if(lang==='ta')return 'வணக்கம்! உங்களுக்கு எப்படி உதவலாம்?';
-    if(lang==='hi')return 'नमस्ते! मैं आपकी कैसे मदद कर सकता हूं?';
-    return 'Hello! I am here to help. Ask me anything or say a voice command.';
-  }
-  if(lang==='ta')return 'நான் உங்களுக்கு உதவ தயாராக இருக்கிறேன்.';
-  if(lang==='hi')return 'मैं आपकी मदद करने के लिए यहाँ हूं।';
-  return 'I am ready to help. You can ask me about your emails, Telegram, or anything else.';
-}
 
 function addAIMsg(text,role){
   const msgs=document.getElementById('aiMsgs');
@@ -2055,7 +2381,281 @@ function addAIMsg(text,role){
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  ADMIN DASHBOARD
+//  OWN REPLY FLOW
+//  User says "own reply" → system asks → user speaks → 3s silence
+//  → system reads back → confirm → PIN → send
+// ═══════════════════════════════════════════════════════════════
+let ownReplyMode=null;   // 'email' or 'telegram'
+let ownReplyText='';
+let ownReplySilenceTimer=null;
+
+function startOwnReply(mode){
+  if(mode==='email'){
+    // Auto-set pendingReply from currently selected email if not already set
+    if(!pendingReply||!pendingReply.to){
+      const em=selEmail!==null?emails[selEmail]:null;
+      if(em){
+        const rawFrom=em.from||'';
+        const match=rawFrom.match(/<([^>]+)>/);
+        const cleanTo=match?match[1]:rawFrom.trim();
+        pendingReply={to:cleanTo,subject:'Re: '+em.subject};
+      } else {
+        speak('Please open or read an email first, then say own reply.',()=>startMic());return;
+      }
+    }
+  }
+  if(mode==='telegram'&&selChat===null){
+    speak('Please open a chat first, then say own reply.',()=>startMic());return;
+  }
+  ownReplyMode=mode;
+  ownReplyText='';
+  speak('Say your reply now. I will wait for you to finish.',()=>{
+    startOwnReplyListen();
+  });
+}
+
+function startOwnReplyListen(){
+  killMic();
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){speak('Microphone not supported.',()=>startMic());return;}
+
+  const r=new SR();
+  r.lang=L.code;
+  r.continuous=true;        // keep listening even through pauses
+  r.interimResults=true;
+  r.maxAlternatives=1;
+  setVS(VS.LISTENING);
+  setSaid('Listening for your reply…');
+
+  let finalSoFar='';
+
+  r.onresult=(e)=>{
+    let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
+    }
+    if(interim)setSaid(interim);
+    if(final){
+      finalSoFar+=final;
+      setSaid(finalSoFar.trim());
+      // Reset the 3-second silence timer on every new word
+      clearTimeout(ownReplySilenceTimer);
+      ownReplySilenceTimer=setTimeout(()=>{
+        // 3 seconds of silence → stop and confirm
+        try{r.stop();}catch{}
+      },3000);
+    }
+  };
+
+  r.onspeechend=()=>{
+    // Start silence countdown
+    clearTimeout(ownReplySilenceTimer);
+    ownReplySilenceTimer=setTimeout(()=>{
+      try{r.stop();}catch{}
+    },3000);
+  };
+
+  r.onerror=(e)=>{
+    if(e.error==='aborted')return;
+    clearTimeout(ownReplySilenceTimer);
+    if(finalSoFar.trim()) confirmOwnReply(finalSoFar.trim());
+    else speak('I did not hear your reply. Please say it again.',()=>startOwnReplyListen());
+  };
+
+  r.onend=()=>{
+    clearTimeout(ownReplySilenceTimer);
+    setVS(VS.IDLE);
+    const captured=finalSoFar.trim();
+    if(captured){
+      ownReplyText=captured;
+      confirmOwnReply(captured);
+    } else {
+      speak('I did not hear anything. Say your reply again.',()=>startOwnReplyListen());
+    }
+  };
+
+  try{r.start();}catch{speak('Could not start mic.',()=>startMic());}
+}
+
+function confirmOwnReply(text){
+  ownReplyText=text;
+  speak('I heard your reply: '+text+'. Say yes correct to send or no wrong to say again.',()=>startMic());
+  // Next voice input handled in handleCmd own reply confirm mode
+  ownReplyMode=ownReplyMode+'_confirm';
+}
+
+function sendOwnReply(){
+  if(ownReplyMode==='email_confirm'||ownReplyMode==='email'){
+    // Always resolve pendingReply from currently viewed email
+    if(!pendingReply||!pendingReply.to){
+      const em=selEmail!==null?emails[selEmail]:null;
+      if(em){
+        const rawFrom=em.from||'';
+        const match=rawFrom.match(/<([^>]+)>/);
+        const cleanTo=match?match[1]:rawFrom.trim();
+        pendingReply={to:cleanTo,subject:'Re: '+em.subject};
+      } else {
+        speak('No email is open. Please click an email first, then say own reply.',()=>startMic());
+        return;
+      }
+    }
+    // CRITICAL: capture values NOW into local constants before any clearing
+    // The closure in triggerConfirm fires AFTER PIN — by then globals may be cleared
+    const capturedTo=pendingReply.to;
+    const capturedSubject=pendingReply.subject;
+    const capturedBody=ownReplyText;
+    // Clear global state
+    ownReplyMode=null;ownReplyText='';
+    // Trigger confirm with captured values
+    triggerConfirm(
+      'Reply to: '+capturedTo+'\nSubject: '+capturedSubject+'\nMessage: "'+capturedBody+'"',
+      ()=>doSendEmail(capturedTo,capturedSubject,capturedBody)
+    );
+  } else if(ownReplyMode==='telegram_confirm'||ownReplyMode==='telegram'){
+    const ch=tgChats[selChat];
+    if(!ch){speak('No chat selected.',()=>startMic());return;}
+    const capturedBody=ownReplyText;
+    const capturedChatId=ch.id;
+    const capturedName=ch.name;
+    ownReplyMode=null;ownReplyText='';
+    const inp=document.getElementById('tgMsg');
+    if(inp)inp.value=capturedBody;
+    triggerConfirm(
+      'Send to '+capturedName+':\n"'+capturedBody+'"',
+      ()=>doTgSend(capturedChatId,capturedBody,capturedName)
+    );
+  } else {
+    ownReplyMode=null;ownReplyText='';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ENHANCED AI ASSISTANT — navigation-aware, full trilingual
+// ═══════════════════════════════════════════════════════════════
+function getLocalAIReply(msg){
+  const m=msg.toLowerCase();
+
+  // ── NAVIGATION — checked FIRST before generic email/telegram ──
+  if(/open telegram|go to telegram|switch.*telegram|navigate.*telegram|how.*telegram|telegram.*open/.test(m)){
+    if(lang==='ta')return '"open telegram" என்று சொல்லுங்கள். மேலே Telegram பொத்தானை கிளிக் செய்யலாம்.';
+    if(lang==='hi')return '"open telegram" कहें, या ऊपर Telegram बटन क्लिक करें।';
+    return 'Say "open telegram" to go to Telegram, or click the Telegram button at the top.';
+  }
+  if(/open gmail|open email|go to.*email|switch.*email|navigate.*email/.test(m)){
+    if(lang==='ta')return '"open gmail" என்று சொல்லுங்கள். மேலே Email பொத்தானை கிளிக் செய்யலாம்.';
+    if(lang==='hi')return '"open gmail" कहें, या ऊपर Email बटन क्लिक करें।';
+    return 'Say "open gmail" to go to the email page, or click Email at the top.';
+  }
+  if(/open admin|go to admin|admin panel/.test(m)){
+    if(lang==='ta')return '"open admin" என்று சொல்லுங்கள்.';
+    if(lang==='hi')return '"open admin" कहें।';
+    return 'Say "open admin" to open the admin dashboard.';
+  }
+
+  // ── HELP / COMMANDS ──
+  if(/help|commands|what can|how to|how do|available/.test(m)){
+    if(page==='email'){
+      if(lang==='ta')return 'கட்டளைகள்: மின்னஞ்சல் படி, எண்ணு, அனுப்பு, குப்பை அழி, பதில் ஒன்று இரண்டு மூன்று, சொந்த பதில்.';
+      if(lang==='hi')return 'कमांड: ईमेल पढ़ो, गिनो, भेजो, ट्रैश साफ, जवाब एक दो तीन, खुद का जवाब।';
+      return 'Say: read latest email, count emails, send email, clear trash, reply one two three, own reply, refresh.';
+    }
+    if(page==='telegram'){
+      if(lang==='ta')return 'கட்டளைகள்: open [பெயர்], read chat, reply chat, own reply, refresh, logout telegram.';
+      if(lang==='hi')return 'कमांड: open [नाम], read chat, reply chat, own reply, refresh, logout telegram।';
+      return 'Say: open [name], read chat, reply chat, reply one two three, own reply, refresh, logout telegram.';
+    }
+    if(lang==='ta')return 'admin login, user login, new user sign up சொல்லுங்கள்.';
+    if(lang==='hi')return 'admin login, user login, या new user sign up कहें।';
+    return 'Say admin login, user login, or new user sign up to get started.';
+  }
+
+  // ── SEND EMAIL ──
+  if(/send.*email|compose|write.*email|new.*email/.test(m)){
+    if(lang==='ta')return '"send email" சொல்லுங்கள். Compose box திறக்கும்.';
+    if(lang==='hi')return '"send email" कहें। Compose box खुलेगा।';
+    return 'Say "send email" — the compose box will open and guide you step by step by voice.';
+  }
+
+  // ── READ EMAIL ──
+  if(/read.*email|check.*email|latest.*email|new.*mail/.test(m)){
+    if(lang==='ta')return '"read latest email" சொல்லுங்கள். எந்த பிரிவு என்று கேட்கும்.';
+    if(lang==='hi')return '"read latest email" कहें। section पूछा जाएगा।';
+    return 'Say "read latest email" — I will ask inbox, social, or promotions, then read it aloud.';
+  }
+
+  // ── EMAIL COUNT / STATUS ──
+  if(/email|mail|inbox|unread/.test(m)){
+    if(emails.length>0){
+      const u=emails.filter(e=>!e.read).length;
+      if(lang==='ta')return `உங்கள் inbox-ல் ${emails.length} மின்னஞ்சல்கள், ${u} படிக்கப்படாதவை. "read latest email" சொல்லுங்கள்.`;
+      if(lang==='hi')return `inbox में ${emails.length} ईमेल, ${u} अपठित। "read latest email" कहें।`;
+      return `You have ${emails.length} emails, ${u} unread. Say "read latest email" to hear the newest.`;
+    }
+    if(lang==='ta')return '"open gmail" சொல்லுங்கள்.';
+    if(lang==='hi')return '"open gmail" कहें।';
+    return 'Say "open gmail" to load your inbox.';
+  }
+
+  // ── TELEGRAM ──
+  if(/telegram|chat|message/.test(m)){
+    if(tgChats.length>0){
+      if(lang==='ta')return `${tgChats.length} Telegram chats உள்ளன. "open [பெயர்]" சொல்லுங்கள்.`;
+      if(lang==='hi')return `${tgChats.length} चैट हैं। "open [नाम]" कहें।`;
+      return `You have ${tgChats.length} Telegram chats. Say "open [contact name]" to open one.`;
+    }
+    if(lang==='ta')return '"open telegram" சொல்லுங்கள்.';
+    if(lang==='hi')return '"open telegram" कहें।';
+    return 'Say "open telegram" to connect your Telegram account.';
+  }
+
+  // ── TIME ──
+  if(/time|clock|மணி|बजे/.test(m)){
+    const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    if(lang==='ta')return `இப்போது ${t} மணி.`;
+    if(lang==='hi')return `अभी ${t} बज रहे हैं।`;
+    return `The time is ${t}.`;
+  }
+
+  // ── DATE ──
+  if(/date|today|what day|தேதி|आज/.test(m)){
+    const dt=new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
+    if(lang==='ta')return `இன்று ${dt}.`;
+    if(lang==='hi')return `आज ${dt} है।`;
+    return `Today is ${dt}.`;
+  }
+
+  // ── GREETINGS ──
+  if(/hello|\bhi\b|\bhey\b|வணக்கம்|नमस्ते/.test(m)){
+    const name=user?.name||user?.email?.split('@')[0]||'';
+    if(lang==='ta')return `வணக்கம்${name?' '+name:''}! என்ன உதவி தேவை? "help" சொல்லுங்கள்.`;
+    if(lang==='hi')return `नमस्ते${name?' '+name:''}! कैसे मदद करूं? "help" कहें।`;
+    return `Hello${name?' '+name:''}! Ask me anything or say "what commands" to see all options.`;
+  }
+
+  // ── PIN / SECURITY ──
+  if(/pin|security|பின்|पिन/.test(m)){
+    if(lang==='ta')return 'PIN என்பது 4 இலக்க பாதுகாப்பு குறியீடு. ஒவ்வொரு அனுப்புதலிலும் கேட்கப்படும்.';
+    if(lang==='hi')return 'PIN 4 अंकों का कोड है। हर संदेश भेजते समय पूछा जाता है।';
+    return 'The PIN is your 4-digit security code asked before sending any email or Telegram message.';
+  }
+
+  // ── PAGE-AWARE FALLBACK ──
+  if(page==='email'){
+    if(lang==='ta')return '"read latest email", "send email", "count emails" என்று சொல்லுங்கள்.';
+    if(lang==='hi')return '"read latest email", "send email", "count emails" कहें।';
+    return 'Say "read latest email", "send email", or "count emails". Say "help" for all commands.';
+  }
+  if(page==='telegram'){
+    if(lang==='ta')return '"open [பெயர்]", "read chat", "own reply" என்று சொல்லுங்கள்.';
+    if(lang==='hi')return '"open [नाम]", "read chat", "own reply" कहें।';
+    return 'Say "open [contact name]", "read chat", or "own reply". Say "help" for all commands.';
+  }
+  if(lang==='ta')return '"help" என்று சொல்லுங்கள் அல்லது உங்கள் கேள்வியை சொல்லுங்கள்.';
+  if(lang==='hi')return '"help" कहें या अपना सवाल पूछें।';
+  return 'I am here to help. Say "help" for commands, or ask me any question.';
+}
+
 // ═══════════════════════════════════════════════════════════════
 async function renderAdmin(){
   document.getElementById('adminSub').textContent='VoiceMailAssist v5 — '+new Date().toLocaleString();
@@ -2207,9 +2807,18 @@ function handleCmd(cmd){
     window.speechSynthesis.cancel();
     if(document.getElementById('pinOverlay').classList.contains('show')){cancelPin();return;}
     if(document.getElementById('confOverlay').classList.contains('show')){confirmNo();return;}
+    if(document.getElementById('composeOverlay').classList.contains('show')){composeCancel();return;}
     speak(L.cancelled,()=>startMic());return;
   }
-  if(/\bsign out\b|\blogout\b|வெளியேறு|साइन आउट/.test(cmd)){doSignOut();return;}
+
+  // ══ PRIORITY 3: LOGOUT TELEGRAM — fires from ANY stage, ANY page ══
+  if(/logout telegram|logout of telegram|disconnect telegram|log out telegram/.test(cmd)){
+    tgVoicePhoneActive=false;tgVoiceOtpActive=false;
+    window.speechSynthesis.cancel();
+    tgDisconnect();return;
+  }
+
+  if(/\bsign out\b|வெளியேறு|साइन आउट/.test(cmd)&&!cmd.includes("telegram")){doSignOut();return;}
   if(/\bhey assist\b|\bhey assistant\b/.test(cmd)){
     document.getElementById('aiPanel').classList.add('open');
     aiVoiceActive=true;
@@ -2269,6 +2878,17 @@ function handleCmd(cmd){
     return;
   }
 
+  // ── OWN REPLY CONFIRM MODE ──
+  if(ownReplyMode&&ownReplyMode.includes('_confirm')){
+    if(isYes(cmd)){sendOwnReply();}
+    else if(isNo(cmd)){
+      ownReplyMode=ownReplyMode.replace('_confirm','');
+      ownReplyText='';
+      speak('Say your reply again.',()=>startOwnReplyListen());
+    } else speak('Say yes correct to send or no wrong to say again.',()=>startMic());
+    return;
+  }
+
   // ── SECTION SELECTION MODE ──
   if(awaitSection){
     let sec=null;
@@ -2290,8 +2910,8 @@ function handleCmd(cmd){
     return;
   }
 
-  // ── COMPOSE FLOW ──
-  if(composeStep>0){handleCompose(cmd);return;}
+  // ── COMPOSE FLOW ── (composeStep is number > 0 or string like '1_confirm')
+  if(composeStep&&composeStep!==0){handleCompose(cmd);return;}
 
   // ── GLOBAL NAV ──
   if(/sign out|logout|வெளியேறு|साइन आउट/.test(cmd)){doSignOut();return;}
@@ -2418,43 +3038,50 @@ function cmdEmail(cmd){
   else if(/count|how many|எண்ணு|गिनो/.test(cmd)){countEmails();}
   else if(/clear trash|delete trash/.test(cmd)){clearTrashFlow();}
   else if(/send email|compose|new email|அனுப்பு|भेजो/.test(cmd)){startCompose();}
+  else if(/reply email|reply to email/.test(cmd)){readLatestFlow();}// reads then offers reply
   else if(/refresh|reload/.test(cmd)){loadEmails();speak('Refreshing emails.',()=>startMic());}
-  else if(/reply one|reply 1|first reply/.test(cmd)){if(aiReplies[0])selectReply(0);else startMic();}
-  else if(/reply two|reply 2|second reply/.test(cmd)){if(aiReplies[1])selectReply(1);else startMic();}
-  else if(/reply three|reply 3|third reply/.test(cmd)){if(aiReplies[2])selectReply(2);else startMic();}
+  else if(/reply one|reply 1|first reply/.test(cmd)){if(aiReplies[0])selectReply(0);else speak('No reply suggestions yet. Read an email first.',()=>startMic());}
+  else if(/reply two|reply 2|second reply/.test(cmd)){if(aiReplies[1])selectReply(1);else speak('No reply suggestions yet.',()=>startMic());}
+  else if(/reply three|reply 3|third reply/.test(cmd)){if(aiReplies[2])selectReply(2);else speak('No reply suggestions yet.',()=>startMic());}
+  else if(/own reply|on reply|my reply|give own|custom reply|type reply/.test(cmd)){startOwnReply('email');}
   else if(/skip/.test(cmd)){speak('Skipped.',()=>startMic());}
-  else speak('Say read latest email, count emails, send email, or clear trash.',()=>startMic());
-}
-
-function handleCompose(cmd){
-  if(/cancel/.test(cmd)){composeStep=0;speak(L.cancelled,()=>startMic());return;}
-  if(composeStep===1){
-    composeTo=spokenToEmail(cmd)||cmd.replace(/\s/g,'').toLowerCase();
-    if(composeTo.includes('@')){
-      composeStep=2;
-      speak(`Sending to ${makeReadable(composeTo)}. What is the subject?`,()=>startMic());
-    } else speak('I could not hear a valid email address. Please say the recipient email again.',()=>startMic());
-    return;
-  }
-  if(composeStep===2){
-    composeSub=cmd;composeStep=3;
-    speak(`Subject: ${makeReadable(composeSub)}. Now say your message body.`,()=>startMic());
-    return;
-  }
-  if(composeStep===3){
-    composeBody=cmd;composeStep=0;
-    triggerConfirm(`To: ${composeTo}\nSubject: ${composeSub}\nMessage: ${composeBody}`,
-      ()=>doSendEmail(composeTo,composeSub,composeBody));
-    return;
-  }
+  else speak('Say: read latest email, count emails, send email, reply one two or three, own reply, or clear trash.',()=>startMic());
 }
 
 function cmdTelegram(cmd){
-  if(/connect|link|my number|enter number/.test(cmd)){
+  if(/connect telegram|connect my telegram/.test(cmd)){
+    // Always show the login form and immediately ask for number by voice
+    tgDisconnectSilent();
+    document.getElementById('tgLoginSection').style.display='flex';
+    document.getElementById('tgLoginSection').style.flex='1';
+    document.getElementById('tgChatSection').style.display='none';
+    document.getElementById('tgPhoneStep').style.display='block';
+    document.getElementById('tgOtpStep').style.display='none';
+    document.getElementById('tgPhone').value='';
+    document.getElementById('tgError').style.display='none';
+    // Immediately start voice number capture
+    tgVoiceNumber();
+    return;
+  }
+  if(/\bconnect\b|\blink\b|my number|enter number/.test(cmd)){
     if(document.getElementById('tgPhoneStep').style.display!=='none'){tgVoiceNumber();}
     else speak('Enter your phone number in the form.',()=>startMic());
   } else if(/send otp|otp code|verify/.test(cmd)&&document.getElementById('tgPhoneStep').style.display!=='none'){tgStartLogin();}
   else if(/say otp|voice otp/.test(cmd)&&document.getElementById('tgOtpStep').style.display!=='none'){tgVoiceOtp();}
+  else if(/logout|disconnect|log out/.test(cmd)){tgDisconnect();}
+  else if(/read chat|read message|last message/.test(cmd)){
+    if(selChat!==null&&tgChats[selChat]){
+      const ch=tgChats[selChat];
+      speak('Reading last message from '+ch.name+'.',()=>{
+        openTgChat(selChat);
+      });
+    } else speak('Say: open followed by a contact name first, then say read chat.',()=>startMic());
+  }
+  else if(/reply chat|reply message/.test(cmd)){
+    if(selChat!==null){
+      speak('Say reply one, two, or three for AI suggestions. Or say own reply to say your own message.',()=>startMic());
+    } else speak('Open a chat first. Say open followed by a contact name.',()=>startMic());
+  }
   else if(/refresh/.test(cmd)){loadTgChats();speak('Refreshing chats.',()=>startMic());}
   else if(/^open\s+(.+)/.test(cmd)){
     const name=cmd.replace(/^open\s+/,'').trim();
@@ -2464,8 +3091,9 @@ function cmdTelegram(cmd){
   } else if(/reply one|reply 1/.test(cmd)){if(tgAI[0])selTgReply(0);startMic();}
   else if(/reply two|reply 2/.test(cmd)){if(tgAI[1])selTgReply(1);startMic();}
   else if(/reply three|reply 3/.test(cmd)){if(tgAI[2])selTgReply(2);startMic();}
+  else if(/own reply|on reply|my reply|give own|custom reply/.test(cmd)){startOwnReply('telegram');}
   else if(/\bsend\b/.test(cmd)){initTgSend();}
-  else speak('Say connect telegram, open a contact name, reply one two or three, or send.',()=>startMic());
+  else speak('Say: connect telegram, open [name], read chat, reply chat, own reply, logout telegram, or send.',()=>startMic());
 }
 
 function cmdAdmin(cmd){
@@ -2482,13 +3110,50 @@ function isNo(cmd) {return/\bno\b|wrong|இல்லை|गलत|नहीं/.
 
 function extractDigits(said,maxLen){
   maxLen=maxLen||4;
-  const wm={zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',
-    சுழியம்:'0',ஒன்று:'1',இரண்டு:'2',மூன்று:'3',நான்கு:'4',ஐந்து:'5',ஆறு:'6',ஏழு:'7',எட்டு:'8',ஒன்பது:'9',
-    शून्य:'0',एक:'1',दो:'2',तीन:'3',चार:'4',पाँच:'5',छह:'6',सात:'7',आठ:'8',नौ:'9'};
-  let d=said.replace(/\D/g,'');
-  if(d.length>=maxLen)return d.slice(0,maxLen);
-  d=said.split(/\s+/).map(w=>wm[w.toLowerCase()]||w.replace(/\D/g,'')).join('').slice(0,maxLen);
-  return d;
+  // Step 1: if it's already numeric digits, return them
+  const raw=said.replace(/\D/g,'');
+  if(raw.length>=maxLen)return raw.slice(0,maxLen);
+
+  // Step 2: word → digit map (includes teen numbers split into individual digits)
+  const wm={
+    'zero':'0','oh':'0','o':'0',
+    'one':'1','won':'1','wan':'1',
+    'two':'2','to':'2','too':'2',
+    'three':'3','tree':'3','free':'3',
+    'four':'4','for':'4','fore':'4',
+    'five':'5','fife':'5',
+    'six':'6','sicks':'6',
+    'seven':'7',
+    'eight':'8','ate':'8',
+    'nine':'9','nein':'9','nin':'9',
+    // teen numbers → two digits
+    'ten':'10','eleven':'11','twelve':'12',
+    'thirteen':'13','fourteen':'14','fifteen':'15',
+    'sixteen':'16','seventeen':'17','eighteen':'18','nineteen':'19',
+    'twenty':'20',
+    // Tamil
+    'சுழியம்':'0','ஒன்று':'1','இரண்டு':'2','மூன்று':'3','நான்கு':'4',
+    'ஐந்து':'5','ஆறு':'6','ஏழு':'7','எட்டு':'8','ஒன்பது':'9',
+    // Hindi
+    'शून्य':'0','एक':'1','दो':'2','तीन':'3','चार':'4',
+    'पाँच':'5','छह':'6','सात':'7','आठ':'8','नौ':'9'
+  };
+
+  // Step 3: tokenize by spaces, map each token
+  let result='';
+  for(const w of said.trim().split(/\s+/)){
+    const wl=w.toLowerCase().replace(/[^a-z0-9\u0B80-\u0BFF\u0900-\u097F]/g,'');
+    if(wm[wl]!==undefined){
+      result+=wm[wl];// may be 2 chars for teen numbers
+    } else {
+      result+=w.replace(/\D/g,'');
+    }
+    if(result.length>=maxLen)break;
+  }
+
+  // Return up to maxLen digits
+  const digits=result.replace(/\D/g,'');
+  return digits.slice(0,maxLen);
 }
 
 function spokenToEmail(s){
@@ -2558,8 +3223,11 @@ async function init(){
     pickVoice(speechSynthesis.getVoices());
     updateSidebarLang();
     ['lpE','lpT'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=lang.toUpperCase();});
-    ['lcEn','lcTa','lcHi'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
-    document.getElementById({en:'lcEn',ta:'lcTa',hi:'lcHi'}[lang])?.classList.add('sel');
+    // Only show sel border if user has explicitly chosen a language before
+    if(localStorage.getItem('vma_lang')){
+      ['lcEn','lcTa','lcHi'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+      document.getElementById({en:'lcEn',ta:'lcTa',hi:'lcHi'}[lang])?.classList.add('sel');
+    }
   },500);
 
   // 3. Check OAuth redirect params
