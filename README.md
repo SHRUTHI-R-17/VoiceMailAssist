@@ -50,7 +50,7 @@ This project was developed as part of the **Infosys Springboard Virtual Internsh
 
 - Python 3.9+ or Node.js 18+
 - A Google Cloud account with Gmail API enabled
-- A Telegram Bot Token (from [@BotFather](https://t.me/botfather))
+- A Telegram Bot Token 
 - An OpenAI or Gemini API key (for AI reply suggestions)
 
 ### 1. Clone the Repository
