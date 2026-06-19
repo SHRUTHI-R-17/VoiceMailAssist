@@ -59,6 +59,8 @@ This project was developed as part of the **Infosys Springboard Virtual Internsh
 ### 4. Set Up Gmail API
 ### 5. Run the Application
 
+---
+
 ## 🗂️ Project Structure
 
 ```
