@@ -66,7 +66,7 @@ This project was developed as part of the **Infosys Springboard Virtual Internsh
 ```
 VoiceMailAssist/
 ├── app                     # Main application entry point
-├── requirements.txt        # Python dependencies
+├── requirements.txt        # Dependencies
 ├── .env                    # Environment variables
 ├── static/
 │   ├── css/                # Stylesheets
