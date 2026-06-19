@@ -10,7 +10,7 @@ VoiceMailAssist is a web-based voice assistant that lets you manage your Gmail i
 
 VoiceMailAssist bridges the gap between voice technology and daily communication. Users can read emails, compose replies, create calendar events, and manage Telegram messages - all by simply speaking. The assistant understands natural language commands in English, Tamil, and Hindi, making it accessible to a wider audience.
 
-This project was developed as part of the **Infosys Springboard Virtual Internship 6.0 (Batch 13)** under the theme of AI-powered assistive tools.
+This project was developed as part of the **Infosys Springboard Virtual Internship 6.0 (Batch 13)**.
 
 ---
 
